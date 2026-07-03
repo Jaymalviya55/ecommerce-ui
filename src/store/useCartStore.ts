@@ -40,7 +40,10 @@ const getSessionId = () => {
   return sessionId;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+if (API_BASE_URL && !API_BASE_URL.endsWith('/api')) {
+    API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
 const API_URL = `${API_BASE_URL}/carts`;
 
 export const useCartStore = create<CartStore>((set, get) => ({

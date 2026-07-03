@@ -1,7 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+if (API_BASE_URL && !API_BASE_URL.endsWith('/api')) {
+    API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
