@@ -40,7 +40,8 @@ const getSessionId = () => {
   return sessionId;
 };
 
-const API_URL = 'http://localhost:8080/api/carts';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_URL = `${API_BASE_URL}/carts`;
 
 export const useCartStore = create<CartStore>((set, get) => ({
   cart: null,
@@ -112,7 +113,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   checkout: async (email: string, address: string) => {
     try {
-      const response = await fetch('http://localhost:8080/api/orders/checkout', {
+      const response = await fetch(`${API_BASE_URL}/orders/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

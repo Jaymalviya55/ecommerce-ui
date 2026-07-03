@@ -29,7 +29,8 @@ export const useProductStore = create<ProductState>((set) => ({
     fetchProducts: async () => {
         set({ isLoading: true, error: null })
         try {
-            const response = await fetch('http://localhost:8080/api/products')
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+            const response = await fetch(`${API_URL}/products`);
             if (!response.ok) throw new Error('Failed to fetch products')
             const data = await response.json()
             set({ products: data, isLoading: false })
