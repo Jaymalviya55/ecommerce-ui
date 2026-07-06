@@ -68,7 +68,7 @@ export const Checkout = () => {
         <div className="px-4 py-5 sm:p-6">
           <div className="mb-8 p-4 bg-gray-50 rounded-md border border-gray-200 flex justify-between items-center">
             <span className="text-lg font-medium text-gray-700">Total Amount:</span>
-            <span className="text-2xl font-black text-indigo-600">${total.toFixed(2)}</span>
+            <span className="text-2xl font-black text-indigo-600">₹{total.toFixed(2)}</span>
           </div>
 
           {error && (

@@ -32,7 +32,7 @@ export const ProductGrid = () => {
                             </Link>
                             <p className="text-gray-600 mb-4 h-12 line-clamp-2">{product.description}</p>
                             <div className="flex items-center justify-between">
-                                <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                                <span className="text-2xl font-bold text-gray-900">₹{product.price.toFixed(2)}</span>
                                 <button 
                                     onClick={() => addToCart(product.id, 1)}
                                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200"
