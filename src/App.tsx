@@ -12,6 +12,7 @@ import { CartSidebar } from './components/CartSidebar'
 import { AuthModal } from './components/AuthModal'
 import { useCartStore } from './store/useCartStore'
 import { useAuthStore } from './store/useAuthStore'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const { cart, toggleCart, fetchCart } = useCartStore()
@@ -72,6 +73,7 @@ function App() {
           </Route>
         </Routes>
       </main>
+      <Analytics />
     </div>
   )
 }
