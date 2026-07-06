@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useProductStore } from '../store/useProductStore'
 import { useCartStore } from '../store/useCartStore'
 
@@ -19,14 +20,16 @@ export const ProductGrid = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {products.map(product => (
                     <div key={product.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                        <div className="h-48 bg-gray-200 flex items-center justify-center">
+                        <Link to={`/product/${product.id}`} className="block h-48 bg-gray-200 flex items-center justify-center hover:opacity-80 transition-opacity">
                             <span className="text-gray-400 text-4xl">📸</span>
-                        </div>
+                        </Link>
                         <div className="p-6">
                             <div className="text-sm text-indigo-600 font-semibold mb-1">
                                 {product.category?.name || 'Uncategorized'}
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                            <Link to={`/product/${product.id}`}>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-indigo-600 transition-colors">{product.name}</h3>
+                            </Link>
                             <p className="text-gray-600 mb-4 h-12 line-clamp-2">{product.description}</p>
                             <div className="flex items-center justify-between">
                                 <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>

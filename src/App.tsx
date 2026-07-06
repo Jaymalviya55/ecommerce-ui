@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
+import { Checkout } from './pages/Checkout'
+import { ProductDetail } from './pages/ProductDetail'
+import { Category } from './pages/Category'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { CartSidebar } from './components/CartSidebar'
-import { CheckoutModal } from './components/CheckoutModal'
 import { AuthModal } from './components/AuthModal'
 import { useCartStore } from './store/useCartStore'
 import { useAuthStore } from './store/useAuthStore'
@@ -23,14 +25,15 @@ function App() {
   return (
     <div className="min-h-screen">
       <CartSidebar />
-      <CheckoutModal />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="text-2xl font-black text-indigo-600 tracking-tight">EnterpriseStore</Link>
           <nav>
             <ul className="flex items-center space-x-6 text-sm font-medium text-gray-600">
-              <li><Link to="/" className="hover:text-indigo-600">Shop</Link></li>
+              <li><Link to="/" className="hover:text-indigo-600">Shop All</Link></li>
+              <li><Link to="/category/electronics" className="hover:text-indigo-600">Electronics</Link></li>
+              <li><Link to="/category/clothing" className="hover:text-indigo-600">Clothing</Link></li>
               <li><Link to="/profile" className="hover:text-indigo-600">Profile</Link></li>
               <li className="hover:text-indigo-600 cursor-pointer" onClick={toggleCart}>
                 Cart ({cartItemCount})
@@ -53,9 +56,12 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/category/:name" element={<Category />} />
           
           <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
             <Route path="/profile" element={<Profile />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Route>
         </Routes>
       </main>

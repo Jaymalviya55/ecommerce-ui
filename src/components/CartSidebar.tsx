@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 
 export const CartSidebar = () => {
-  const { cart, isOpen, toggleCart, removeFromCart, toggleCheckoutModal } = useCartStore();
+  const { cart, isOpen, toggleCart, removeFromCart } = useCartStore();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -81,7 +83,10 @@ export const CartSidebar = () => {
               <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
               <div className="mt-6">
                 <button
-                  onClick={toggleCheckoutModal}
+                  onClick={() => {
+                    toggleCart();
+                    navigate('/checkout');
+                  }}
                   disabled={cart?.items?.length === 0}
                   className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
