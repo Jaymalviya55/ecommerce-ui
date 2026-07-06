@@ -66,7 +66,7 @@ export const ProductDetail = () => {
           </div>
 
           <div className="mt-8 flex items-center justify-between">
-            <p className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</p>
+            <p className="text-4xl font-black text-gray-900">₹{product.price.toFixed(2)}</p>
             <div className="flex items-center space-x-2 text-sm text-green-600 font-medium">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
               <span>{product.stockQuantity} in stock</span>

@@ -5,7 +5,9 @@ import { Profile } from './pages/Profile'
 import { Checkout } from './pages/Checkout'
 import { ProductDetail } from './pages/ProductDetail'
 import { Category } from './pages/Category'
+import { AdminDashboard } from './pages/AdminDashboard'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminRoute } from './components/AdminRoute'
 import { CartSidebar } from './components/CartSidebar'
 import { AuthModal } from './components/AuthModal'
 import { useCartStore } from './store/useCartStore'
@@ -13,7 +15,7 @@ import { useAuthStore } from './store/useAuthStore'
 
 function App() {
   const { cart, toggleCart, fetchCart } = useCartStore()
-  const { isAuthenticated, userEmail, logout } = useAuthStore()
+  const { isAuthenticated, isAdmin, userEmail, logout } = useAuthStore()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
   useEffect(() => {
@@ -35,6 +37,7 @@ function App() {
               <li><Link to="/category/electronics" className="hover:text-indigo-600">Electronics</Link></li>
               <li><Link to="/category/clothing" className="hover:text-indigo-600">Clothing</Link></li>
               <li><Link to="/profile" className="hover:text-indigo-600">Profile</Link></li>
+              {isAdmin && <li><Link to="/admin" className="text-red-600 hover:text-red-700 font-bold">Admin</Link></li>}
               <li className="hover:text-indigo-600 cursor-pointer" onClick={toggleCart}>
                 Cart ({cartItemCount})
               </li>
@@ -62,6 +65,10 @@ function App() {
           <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/checkout" element={<Checkout />} />
+          </Route>
+
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
           </Route>
         </Routes>
       </main>
