@@ -19,8 +19,37 @@ export const Checkout = () => {
     setError('');
 
     try {
-      await checkout(email, address);
-      setSuccess(true);
+      // 1. Tell backend to create Razorpay Order
+      const data = await checkout(email, address);
+      
+      // 2. Open Razorpay secure modal for the user to pay
+      const options = {
+          key: data.keyId,
+          amount: data.totalAmount * 100, // paise
+          currency: "INR",
+          name: "EnterpriseStore",
+          description: "Secure Payment",
+          order_id: data.razorpayOrderId,
+          handler: function (_response: any) {
+              // 3. User paid successfully! (Webhook handles DB update)
+              setSuccess(true);
+          },
+          prefill: {
+              email: email
+          },
+          theme: {
+              color: "#4f46e5"
+          }
+      };
+      
+      const rzp = new (window as any).Razorpay(options);
+      
+      rzp.on('payment.failed', function (response: any){
+          setError(response.error.description || "Payment failed");
+      });
+      
+      rzp.open();
+      
     } catch (err: any) {
       setError(err.message || 'Failed to checkout');
     } finally {

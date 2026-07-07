@@ -27,7 +27,7 @@ interface CartStore {
   fetchCart: () => Promise<void>;
   addToCart: (productId: number, quantity: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
-  checkout: (email: string, address: string) => Promise<void>;
+  checkout: (email: string, address: string) => Promise<any>;
 }
 
 // Generate a random session ID for the user if one doesn't exist
@@ -128,8 +128,11 @@ export const useCartStore = create<CartStore>((set, get) => ({
         throw new Error(text || 'Checkout failed');
       }
       
+      const data = await response.json();
+      
       // On success, clear the cart in state and close the cart sidebar
       set({ cart: null, isOpen: false });
+      return data;
     } catch (error: any) {
       throw error;
     }
