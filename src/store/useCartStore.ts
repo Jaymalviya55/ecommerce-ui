@@ -26,6 +26,7 @@ interface CartStore {
   toggleCheckoutModal: () => void;
   fetchCart: () => Promise<void>;
   addToCart: (productId: number, quantity: number) => Promise<void>;
+  updateQuantity: (productId: number, quantity: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
   checkout: (email: string, address: string) => Promise<any>;
 }
@@ -86,6 +87,24 @@ export const useCartStore = create<CartStore>((set, get) => ({
         body: JSON.stringify({ productId, quantity }),
       });
       if (!response.ok) throw new Error('Failed to add item');
+      const cart = await response.json();
+      set({ cart, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
+
+  updateQuantity: async (productId: number, quantity: number) => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_URL}/${get().sessionId}/items/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity }),
+      });
+      if (!response.ok) throw new Error('Failed to update quantity');
       const cart = await response.json();
       set({ cart, isLoading: false });
     } catch (error: any) {

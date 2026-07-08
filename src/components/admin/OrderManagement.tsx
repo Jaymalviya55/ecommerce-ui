@@ -1,42 +1,63 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useOrderStore } from '../../store/useOrderStore';
-import { Clock, CheckCircle, Truck, XCircle } from 'lucide-react';
+import { Clock, CheckCircle, Truck, XCircle, AlertCircle } from 'lucide-react';
+import { Modal } from '../ui/Modal';
 
 export const OrderManagement = () => {
   const { allOrders, isLoading: isLoadingOrders, fetchAllOrders, shipOrder, deliverOrder, cancelOrder } = useOrderStore();
+
+  const [activeModal, setActiveModal] = useState<'ship' | 'cancel' | 'deliver' | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [carrierName, setCarrierName] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchAllOrders();
   }, [fetchAllOrders]);
 
-  const handleShip = async (id: number) => {
-    const trackingNumber = prompt('Enter Tracking Number:');
-    if (!trackingNumber) return;
-    const carrierName = prompt('Enter Carrier Name (e.g., FedEx, UPS):');
-    if (!carrierName) return;
+  const closeModal = () => {
+    setActiveModal(null);
+    setSelectedOrderId(null);
+    setTrackingNumber('');
+    setCarrierName('');
+    setErrorMsg('');
+  };
 
+  const openModal = (type: 'ship' | 'cancel' | 'deliver', id: number) => {
+    setActiveModal(type);
+    setSelectedOrderId(id);
+    setErrorMsg('');
+  };
+
+  const handleShipSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrderId || !trackingNumber || !carrierName) {
+      setErrorMsg('Please fill all fields');
+      return;
+    }
+    setIsSubmitting(true);
     try {
-      await shipOrder(id, trackingNumber, carrierName);
+      await shipOrder(selectedOrderId, trackingNumber, carrierName);
+      closeModal();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : String(err));
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeliver = async (id: number) => {
-    if (!confirm('Mark order as delivered?')) return;
+  const handleActionSubmit = async (action: () => Promise<void>) => {
+    if (!selectedOrderId) return;
+    setIsSubmitting(true);
     try {
-      await deliverOrder(id);
+      await action();
+      closeModal();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : String(err));
-    }
-  };
-
-  const handleCancel = async (id: number) => {
-    if (!confirm('Are you sure you want to cancel this order? Inventory will be restocked.')) return;
-    try {
-      await cancelOrder(id);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : String(err));
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -61,6 +82,8 @@ export const OrderManagement = () => {
       default: return 'bg-slate-400/10 text-slate-400 border-slate-400/20';
     }
   };
+
+  const inputClasses = "block w-full bg-slate-900/50 border border-slate-700/50 text-slate-100 rounded-xl shadow-sm py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-all";
 
   return (
     <div className="flex flex-col">
@@ -103,12 +126,12 @@ export const OrderManagement = () => {
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
                       {(order.status === 'Pending' || order.status === 'Paid') && (
                         <>
-                          <button onClick={() => handleShip(order.id)} className="text-primary hover:text-primary-hover font-semibold transition-colors bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20">Ship</button>
-                          <button onClick={() => handleCancel(order.id)} className="text-rose-400 hover:text-rose-300 font-semibold transition-colors bg-rose-400/10 px-3 py-1.5 rounded-lg hover:bg-rose-400/20">Cancel</button>
+                          <button onClick={() => openModal('ship', order.id)} className="text-primary hover:text-primary-hover font-semibold transition-colors bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20">Ship</button>
+                          <button onClick={() => openModal('cancel', order.id)} className="text-rose-400 hover:text-rose-300 font-semibold transition-colors bg-rose-400/10 px-3 py-1.5 rounded-lg hover:bg-rose-400/20">Cancel</button>
                         </>
                       )}
                       {order.status === 'Shipped' && (
-                        <button onClick={() => handleDeliver(order.id)} className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-lg hover:bg-emerald-400/20">Mark Delivered</button>
+                        <button onClick={() => openModal('deliver', order.id)} className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-lg hover:bg-emerald-400/20">Mark Delivered</button>
                       )}
                     </td>
                   </tr>
@@ -118,6 +141,113 @@ export const OrderManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Shipping Modal */}
+      <Modal isOpen={activeModal === 'ship'} onClose={closeModal} title={`Ship Order #${selectedOrderId}`}>
+        <form onSubmit={handleShipSubmit} className="space-y-5">
+          {errorMsg && (
+            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+              <AlertCircle size={16} /> {errorMsg}
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Carrier Name</label>
+            <input 
+              type="text" 
+              required 
+              placeholder="e.g., FedEx, UPS"
+              value={carrierName} 
+              onChange={e => setCarrierName(e.target.value)} 
+              className={inputClasses} 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Tracking Number</label>
+            <input 
+              type="text" 
+              required 
+              placeholder="Enter tracking number"
+              value={trackingNumber} 
+              onChange={e => setTrackingNumber(e.target.value)} 
+              className={inputClasses} 
+            />
+          </div>
+          <div className="pt-2 flex justify-end gap-3">
+            <button 
+              type="button" 
+              onClick={closeModal}
+              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary-hover text-white rounded-lg shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? 'Saving...' : 'Confirm Shipment'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Cancel Confirmation Modal */}
+      <Modal isOpen={activeModal === 'cancel'} onClose={closeModal} title="Cancel Order">
+        <div className="space-y-5">
+          <div className="text-slate-300">
+            Are you sure you want to cancel order #{selectedOrderId}? The items in this order will automatically be returned to inventory stock.
+          </div>
+          {errorMsg && (
+            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+              <AlertCircle size={16} /> {errorMsg}
+            </div>
+          )}
+          <div className="pt-2 flex justify-end gap-3">
+            <button 
+              onClick={closeModal}
+              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              No, Keep Order
+            </button>
+            <button 
+              onClick={() => handleActionSubmit(() => cancelOrder(selectedOrderId!))}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium bg-rose-600 hover:bg-rose-500 text-white rounded-lg shadow-lg shadow-rose-600/20 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? 'Cancelling...' : 'Yes, Cancel Order'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Deliver Confirmation Modal */}
+      <Modal isOpen={activeModal === 'deliver'} onClose={closeModal} title="Mark Delivered">
+        <div className="space-y-5">
+          <div className="text-slate-300">
+            Confirm that order #{selectedOrderId} has been successfully delivered to the customer?
+          </div>
+          {errorMsg && (
+            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+              <AlertCircle size={16} /> {errorMsg}
+            </div>
+          )}
+          <div className="pt-2 flex justify-end gap-3">
+            <button 
+              onClick={closeModal}
+              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => handleActionSubmit(() => deliverOrder(selectedOrderId!))}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? 'Saving...' : 'Confirm Delivery'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

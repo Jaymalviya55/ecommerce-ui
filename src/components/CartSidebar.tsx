@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
+import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus } from 'lucide-react';
 
 export const CartSidebar = () => {
-  const { cart, isOpen, toggleCart, removeFromCart } = useCartStore();
+  const { cart, isOpen, toggleCart, removeFromCart, updateQuantity } = useCartStore();
   const navigate = useNavigate();
 
   const total = cart?.items?.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0) || 0;
@@ -74,7 +74,27 @@ export const CartSidebar = () => {
                                 </div>
                               </div>
                               <div className="flex-1 flex items-end justify-between text-sm mt-2">
-                                <p className="text-slate-400 bg-slate-800 px-2 py-1 rounded-md">Qty: <span className="text-white font-medium">{item.quantity}</span></p>
+                                <div className="flex items-center space-x-3 bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-700/50">
+                                  <button 
+                                    onClick={() => {
+                                      if (item.quantity > 1) {
+                                        updateQuantity(item.productId, item.quantity - 1);
+                                      } else {
+                                        removeFromCart(item.productId);
+                                      }
+                                    }}
+                                    className="p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
+                                  >
+                                    <Minus size={14} />
+                                  </button>
+                                  <span className="text-white font-medium w-4 text-center">{item.quantity}</span>
+                                  <button 
+                                    onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                    className="p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
+                                  >
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
 
                                 <button
                                   type="button"

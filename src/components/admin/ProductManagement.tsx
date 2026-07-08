@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useProductStore } from '../../store/useProductStore';
 import axiosClient from '../../api/axiosClient';
 import axios from 'axios';
+import { Modal } from '../ui/Modal';
+import { AlertCircle } from 'lucide-react';
 
 export const ProductManagement = () => {
   const { products, isLoading: isLoadingProducts, fetchProducts } = useProductStore();
@@ -10,24 +12,36 @@ export const ProductManagement = () => {
   const [newProduct, setNewProduct] = useState({ name: '', description: '', price: 0, stockQuantity: 0, categoryId: 1 });
   const [actionError, setActionError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const handleDeleteClick = (id: number) => {
+    setProductToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!productToDelete) return;
     
     setActionError('');
+    setIsSubmitting(true);
     try {
-      await axiosClient.delete(`/products/${id}`);
+      await axiosClient.delete(`/products/${productToDelete}`);
       fetchProducts();
+      setDeleteModalOpen(false);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setActionError(err.response?.data || err.message);
       } else {
         setActionError(err instanceof Error ? err.message : String(err));
       }
+      setDeleteModalOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,7 +163,7 @@ export const ProductManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => handleDelete(product.id)} className="text-red-400 hover:text-red-300 font-semibold transition-colors bg-red-400/10 px-3 py-1.5 rounded-lg hover:bg-red-400/20">Delete</button>
+                        <button onClick={() => handleDeleteClick(product.id)} className="text-red-400 hover:text-red-300 font-semibold transition-colors bg-red-400/10 px-3 py-1.5 rounded-lg hover:bg-red-400/20">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -159,6 +173,29 @@ export const ProductManagement = () => {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Delete Product">
+        <div className="space-y-5">
+          <div className="text-slate-300">
+            Are you sure you want to delete this product? This action cannot be undone.
+          </div>
+          <div className="pt-2 flex justify-end gap-3">
+            <button 
+              onClick={() => setDeleteModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={executeDelete}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? 'Deleting...' : 'Yes, Delete'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
