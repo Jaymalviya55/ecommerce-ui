@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import type { Product } from '../store/useProductStore';
+import { motion } from 'framer-motion';
+import { ArrowLeft, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { getProductImage } from '../utils/imageMap';
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,43 +35,64 @@ export const ProductDetail = () => {
     if (id) fetchProduct();
   }, [id]);
 
-  if (isLoading) return <div className="p-12 text-center text-xl text-gray-500">Loading product details...</div>;
-  if (error || !product) return <div className="p-12 text-center text-xl text-red-500">{error || 'Product not found'}</div>;
+  if (isLoading) return (
+    <div className="flex justify-center items-center h-64 mt-20">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
+  
+  if (error || !product) return (
+    <div className="p-8 text-center bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl max-w-2xl mx-auto mt-20">
+      <p className="font-semibold">{error || 'Product not found'}</p>
+      <Link to="/" className="inline-block mt-4 text-primary hover:text-white transition-colors underline">Return to Shop</Link>
+    </div>
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8"
+    >
       <div className="mb-8">
-        <Link to="/" className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
-          &larr; Back to Shop
+        <Link to="/" className="inline-flex items-center space-x-2 text-slate-400 hover:text-primary transition-colors font-medium group">
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Shop</span>
         </Link>
       </div>
       
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-x-8">
-        <div className="aspect-w-3 aspect-h-2 bg-gray-200 flex items-center justify-center p-24 text-6xl">
-          📸
+      <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden lg:h-[600px] flex flex-col lg:flex-row">
+        <div className="w-full lg:w-1/2 h-72 lg:h-full bg-slate-700/30 relative overflow-hidden group flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+          <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
         </div>
-        <div className="p-8 sm:p-12">
-          <div className="flex justify-between items-start">
+        
+        <div className="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center overflow-y-auto">
+          <div className="flex justify-between items-start mb-6">
             <div>
               <Link 
                 to={`/category/${product.category?.name?.toLowerCase()}`} 
-                className="text-sm font-semibold text-indigo-600 uppercase tracking-wide hover:underline"
+                className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary uppercase tracking-wide hover:bg-primary/20 transition-colors mb-4"
               >
                 {product.category?.name || 'Uncategorized'}
               </Link>
-              <h1 className="mt-2 text-4xl font-extrabold text-gray-900 sm:text-5xl">{product.name}</h1>
+              <h1 className="text-4xl font-black text-white sm:text-5xl tracking-tight leading-tight">{product.name}</h1>
             </div>
           </div>
           
-          <div className="mt-6 border-t border-gray-200 pt-6">
+          <div className="mt-4 border-t border-slate-700/50 pt-6">
             <h2 className="sr-only">Product Description</h2>
-            <p className="text-lg text-gray-700 leading-relaxed">{product.description}</p>
+            <p className="text-lg text-slate-300 leading-relaxed">{product.description}</p>
           </div>
 
-          <div className="mt-8 flex items-center justify-between">
-            <p className="text-4xl font-black text-gray-900">₹{product.price.toFixed(2)}</p>
-            <div className="flex items-center space-x-2 text-sm text-green-600 font-medium">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+          <div className="mt-8 flex items-end justify-between">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Price</p>
+              <p className="text-5xl font-black text-white bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">₹{product.price.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-emerald-400 font-medium bg-emerald-400/10 px-3 py-2 rounded-xl border border-emerald-400/20">
+              <CheckCircle2 size={18} />
               <span>{product.stockQuantity} in stock</span>
             </div>
           </div>
@@ -76,13 +100,14 @@ export const ProductDetail = () => {
           <div className="mt-10">
             <button
               onClick={() => addToCart(product.id, 1)}
-              className="w-full bg-indigo-600 border border-transparent rounded-xl py-4 px-8 flex items-center justify-center text-lg font-bold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg transform transition hover:-translate-y-0.5"
+              className="w-full bg-primary hover:bg-primary-dark border border-transparent rounded-2xl py-4 px-8 flex items-center justify-center space-x-3 text-lg font-bold text-white transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 group"
             >
-              Add to Cart
+              <ShoppingCart size={22} className="group-hover:-translate-x-1 transition-transform" />
+              <span>Add to Cart</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
+import { motion } from 'framer-motion';
+import { CreditCard, MapPin, Mail, CheckCircle, ArrowLeft, ShieldCheck, ShoppingBag } from 'lucide-react';
 
 export const Checkout = () => {
   const { cart, checkout } = useCartStore();
@@ -31,26 +33,23 @@ export const Checkout = () => {
     setError('');
 
     try {
-      // 1. Tell backend to create Razorpay Order
       const data = await checkout(email, address);
       
-      // 2. Open Razorpay secure modal for the user to pay
       const options = {
           key: data.keyId,
           amount: data.totalAmount * 100, // paise
           currency: "INR",
-          name: "EnterpriseStore",
-          description: "Secure Payment",
+          name: "EXOUSIA",
+          description: "Premium Secure Checkout",
           order_id: data.razorpayOrderId,
           handler: function (_response: any) {
-              // 3. User paid successfully! (Webhook handles DB update)
               setSuccess(true);
           },
           prefill: {
               email: email
           },
           theme: {
-              color: "#4f46e5"
+              color: "#8b5cf6" // primary violet
           }
       };
       
@@ -71,113 +70,188 @@ export const Checkout = () => {
 
   if (success) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="bg-white shadow sm:rounded-lg">
-          <div className="px-4 py-12 sm:p-16 text-center">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Order Confirmed!</h2>
-            <p className="text-lg text-gray-500 mb-8">
-              Thank you for your purchase. We have received your order and will ship it to <span className="font-medium text-gray-900">{address}</span> shortly.
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-3xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8 mt-12"
+      >
+        <div className="bg-slate-800/60 backdrop-blur-md border border-emerald-500/30 shadow-2xl shadow-emerald-500/10 rounded-3xl overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+          <div className="px-4 py-16 sm:p-20 text-center">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
+              className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-emerald-500/20 border border-emerald-500/30 mb-8"
+            >
+              <CheckCircle className="h-12 w-12 text-emerald-400" />
+            </motion.div>
+            <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Order Confirmed!</h2>
+            <p className="text-lg text-slate-400 mb-10 max-w-lg mx-auto">
+              Thank you for your purchase. We have received your order and will ship it to <span className="font-semibold text-slate-200">{address}</span> shortly.
             </p>
             <button
               type="button"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center space-x-2 px-8 py-4 rounded-xl font-bold shadow-lg text-white bg-primary hover:bg-primary-dark transition-all duration-300 hover:-translate-y-1"
               onClick={() => navigate('/')}
             >
-              Continue Shopping
+              <ArrowLeft size={18} />
+              <span>Continue Shopping</span>
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-2xl leading-6 font-bold text-gray-900">Secure Checkout</h3>
-          <p className="mt-2 max-w-2xl text-sm text-gray-500">
-            Please enter your shipping and contact details below.
-          </p>
-        </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
+    >
+      <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 xl:gap-x-16">
         
-        <div className="px-4 py-5 sm:p-6">
-          <div className="mb-8 p-4 bg-gray-50 rounded-md border border-gray-200 flex justify-between items-center">
-            <span className="text-lg font-medium text-gray-700">Total Amount:</span>
-            <span className="text-2xl font-black text-indigo-600">₹{total.toFixed(2)}</span>
+        {/* Left Side - Form */}
+        <div className="lg:col-span-7">
+          <div className="mb-8">
+            <h1 className="text-4xl font-black text-white tracking-tight flex items-center space-x-3">
+              <ShieldCheck size={36} className="text-primary" />
+              <span>Secure Checkout</span>
+            </h1>
+            <p className="mt-2 text-slate-400 text-lg">Enter your details to complete your premium order.</p>
           </div>
 
-          {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+          <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 shadow-2xl rounded-3xl p-6 sm:p-8">
+            {error && (
+              <div className="mb-8 bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <CheckCircle className="h-5 w-5 text-rose-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-rose-400">{error}</p>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 px-4 border"
-                  placeholder="you@example.com"
-                />
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-6 border-b border-slate-700/50 pb-4">Contact Information</h3>
+                
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-semibold text-slate-300 mb-2">Email Address</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Mail size={18} className="text-slate-500" />
+                      </div>
+                      <input
+                        type="email"
+                        id="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="block w-full pl-11 pr-4 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                Shipping Address
-              </label>
-              <div className="mt-1">
-                <textarea
-                  id="address"
-                  required
-                  rows={4}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 px-4 border"
-                  placeholder="123 Main St, City, Country"
-                />
+              <div>
+                <h3 className="text-xl font-bold text-white mb-6 border-b border-slate-700/50 pb-4">Shipping Details</h3>
+                
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-semibold text-slate-300 mb-2">Full Address</label>
+                    <div className="relative">
+                      <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
+                        <MapPin size={18} className="text-slate-500" />
+                      </div>
+                      <textarea
+                        id="address"
+                        required
+                        rows={4}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        className="block w-full pl-11 pr-4 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        placeholder="123 Luxury Ave, Apt 4B, Metropolis"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-5 border-t border-gray-200">
-              <div className="flex justify-end">
+              <div className="pt-6 mt-6 border-t border-slate-700/50 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center">
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="mt-4 sm:mt-0 py-3 px-6 rounded-xl font-semibold text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
                 >
-                  Back to Cart
+                  Return to Cart
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || total === 0}
-                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                  className="flex items-center justify-center space-x-2 py-4 px-8 rounded-xl font-bold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 disabled:opacity-50 group"
                 >
-                  {isSubmitting ? 'Processing...' : 'Place Order'}
+                  <CreditCard size={20} className="group-hover:scale-110 transition-transform" />
+                  <span>{isSubmitting ? 'Processing...' : 'Pay Securely'}</span>
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Right Side - Order Summary */}
+        <div className="mt-10 lg:mt-0 lg:col-span-5">
+          <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-3xl p-6 sm:p-8 sticky top-28">
+            <h2 className="text-2xl font-bold text-white mb-6 pb-4 border-b border-slate-700/50">Order Summary</h2>
+            
+            <div className="flow-root mb-8">
+              <ul role="list" className="-my-4 divide-y divide-slate-700/50">
+                {cart?.items?.map((item) => (
+                  <li key={item.id} className="py-4 flex items-center space-x-4">
+                    <div className="flex-shrink-0 w-16 h-16 bg-slate-700/30 rounded-xl border border-slate-700/50 flex items-center justify-center">
+                      <ShoppingBag size={20} className="text-slate-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{item.product?.name || 'Item'}</p>
+                      <p className="text-sm text-slate-400">Qty: {item.quantity}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">₹{(item.unitPrice * item.quantity).toFixed(2)}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </form>
+
+            <div className="space-y-4 border-t border-slate-700/50 pt-6">
+              <div className="flex items-center justify-between text-sm">
+                <dt className="text-slate-400">Subtotal</dt>
+                <dd className="font-medium text-white">₹{total.toFixed(2)}</dd>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <dt className="text-slate-400">Shipping</dt>
+                <dd className="font-medium text-emerald-400">Free</dd>
+              </div>
+              <div className="flex items-center justify-between border-t border-slate-700/50 pt-4">
+                <dt className="text-xl font-bold text-white">Total</dt>
+                <dd className="text-3xl font-black text-primary">₹{total.toFixed(2)}</dd>
+              </div>
+            </div>
+            
+            <div className="mt-8 bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex items-start space-x-3">
+              <ShieldCheck size={24} className="text-emerald-400 flex-shrink-0" />
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Payments are securely processed by Razorpay. We do not store your credit card information. 256-bit SSL encryption applied.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
