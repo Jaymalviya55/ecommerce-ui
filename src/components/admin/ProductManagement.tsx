@@ -3,7 +3,6 @@ import { useProductStore } from '../../store/useProductStore';
 import axiosClient from '../../api/axiosClient';
 import axios from 'axios';
 import { Modal } from '../ui/Modal';
-import { AlertCircle } from 'lucide-react';
 
 export const ProductManagement = () => {
   const { products, isLoading: isLoadingProducts, fetchProducts } = useProductStore();
