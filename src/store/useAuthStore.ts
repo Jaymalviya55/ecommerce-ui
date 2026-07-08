@@ -38,7 +38,11 @@ export const useAuthStore = create<AuthState>()(
         set({ accessToken, refreshToken, isAuthenticated: true, isAdmin });
       },
       setUser: (email) => set({ userEmail: email }),
-      logout: () => set({ accessToken: null, refreshToken: null, userEmail: null, isAuthenticated: false, isAdmin: false }),
+      logout: () => {
+        localStorage.removeItem('auth-storage');
+        localStorage.removeItem('cart_session_id');
+        set({ accessToken: null, refreshToken: null, userEmail: null, isAuthenticated: false, isAdmin: false });
+      },
     }),
     {
       name: 'auth-storage', // saves to localStorage automatically

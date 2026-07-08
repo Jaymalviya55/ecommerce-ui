@@ -26,6 +26,32 @@ function App() {
     fetchCart()
   }, [])
 
+  // Cross-tab synchronization for secure logout
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth-storage') {
+        if (!e.newValue) {
+          // The storage was completely removed (Hard Logout in another tab)
+          logout()
+          window.location.href = '/'
+        } else {
+          try {
+            const parsed = JSON.parse(e.newValue)
+            if (!parsed.state?.isAuthenticated) {
+              logout()
+              window.location.href = '/'
+            }
+          } catch (error) {
+            console.error("Failed to parse auth storage sync", error)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [logout])
+
   const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0
 
   return (
