@@ -3,14 +3,16 @@ import { useProductStore } from '../../store/useProductStore';
 import axiosClient from '../../api/axiosClient';
 import axios from 'axios';
 import { Modal } from '../ui/Modal';
+import { ImagePlus, Loader2 } from 'lucide-react';
 
 export const ProductManagement = () => {
   const { products, isLoading: isLoadingProducts, fetchProducts } = useProductStore();
   
   const [isAdding, setIsAdding] = useState(false);
-  const [newProduct, setNewProduct] = useState({ name: '', description: '', price: 0, stockQuantity: 0, categoryId: 1 });
+  const [newProduct, setNewProduct] = useState({ name: '', description: '', price: 0, stockQuantity: 0, categoryId: 1, imageUrl: '' });
   const [actionError, setActionError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
 
@@ -44,6 +46,32 @@ export const ProductManagement = () => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setActionError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ECommerce');
+
+      const response = await fetch('https://api.cloudinary.com/v1_1/pyuea7od/image/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload image to Cloudinary');
+      const data = await response.json();
+      setNewProduct(prev => ({ ...prev, imageUrl: data.secure_url }));
+    } catch (err) {
+      setActionError('Image upload failed. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionError('');
@@ -53,7 +81,7 @@ export const ProductManagement = () => {
       await axiosClient.post('/products', newProduct);
       
       setIsAdding(false);
-      setNewProduct({ name: '', description: '', price: 0, stockQuantity: 0, categoryId: 1 });
+      setNewProduct({ name: '', description: '', price: 0, stockQuantity: 0, categoryId: 1, imageUrl: '' });
       fetchProducts();
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -93,6 +121,33 @@ export const ProductManagement = () => {
             
             <form onSubmit={handleAdd} className="space-y-6">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Product Image</label>
+                  <div className="mt-1 flex items-center gap-4">
+                    <div className="relative group">
+                      <div className="h-24 w-24 rounded-xl border-2 border-dashed border-slate-600/50 bg-slate-900/50 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-primary/50">
+                        {isUploadingImage ? (
+                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        ) : newProduct.imageUrl ? (
+                          <img src={newProduct.imageUrl} alt="Preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <ImagePlus className="w-8 h-8 text-slate-500 group-hover:text-primary/70 transition-colors" />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={isUploadingImage}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-400">
+                      <p className="font-medium text-slate-300">Upload Image</p>
+                      <p>PNG, JPG, WEBP up to 5MB</p>
+                    </div>
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-1">Product Name</label>
                   <input type="text" required value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className={inputClasses} />
@@ -147,6 +202,13 @@ export const ProductManagement = () => {
                     <tr key={product.id} className="hover:bg-slate-700/30 transition-colors duration-150">
                       <td className="px-6 py-5 whitespace-nowrap">
                         <div className="flex items-center">
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-lg object-cover border border-slate-700/50 flex-shrink-0 bg-white" />
+                          ) : (
+                            <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700/50 flex-shrink-0">
+                              <span className="text-slate-500 font-bold">{product.name.charAt(0)}</span>
+                            </div>
+                          )}
                           <div className="ml-4">
                             <div className="text-sm font-semibold text-slate-200">{product.name}</div>
                             <div className="text-sm text-slate-400 mt-0.5">{product.category?.name || `Cat ID: ${product.categoryId}`}</div>

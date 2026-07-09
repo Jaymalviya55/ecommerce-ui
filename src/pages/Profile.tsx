@@ -132,6 +132,20 @@ export const Profile = () => {
                           </span>
                         </div>
                       </div>
+                      
+                      {order.trackingNumber && order.carrierName && (
+                        <div className="bg-slate-800/30 px-4 py-3 border-b border-slate-700/50 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                            <Truck size={16} className="text-indigo-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Tracking Information</p>
+                            <p className="text-sm font-semibold text-slate-200 mt-0.5">
+                              {order.carrierName} <span className="text-slate-500 mx-2">•</span> <span className="text-primary tracking-wide font-mono">{order.trackingNumber}</span>
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       <div className="p-4">
                         <ul className="divide-y divide-slate-700/50">
                           {order.items.map((item, idx) => (
