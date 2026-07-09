@@ -5,6 +5,7 @@ import { Profile } from './pages/Profile'
 import { Checkout } from './pages/Checkout'
 import { ProductDetail } from './pages/ProductDetail'
 import { Category } from './pages/Category'
+import { Search } from './pages/Search'
 import { AdminDashboard } from './pages/AdminDashboard'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
@@ -17,6 +18,7 @@ import { useAuthStore } from './store/useAuthStore'
 import { Analytics } from '@vercel/analytics/react'
 // Cleaned up unused lucide icons
 import { motion, AnimatePresence } from 'framer-motion'
+// Search is imported from pages
 
 function App() {
   const { fetchCart } = useCartStore()
@@ -75,6 +77,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/category/:name" element={<Category />} />
+              <Route path="/search" element={<Search />} />
               
               <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
                 <Route path="/profile" element={<Profile />} />

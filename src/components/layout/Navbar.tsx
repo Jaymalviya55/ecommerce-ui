@@ -1,40 +1,43 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, LogOut, Shield, Search, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useSearchParams } from 'react-router-dom';
 
 interface NavbarProps {
   onOpenAuthModal: () => void;
 }
 
-export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
-  const { cart, toggleCart } = useCartStore();
-  const { isAuthenticated, isAdmin, userEmail, logout } = useAuthStore();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-  const handleSearch = (e: React.FormEvent) => {
+const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, onClear: () => void }) => {
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
+  
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      // API integration ready: navigate(`/search?q=${searchQuery}`) or similar
-      console.log('Search triggered for:', searchQuery);
-      // We will hook this up to an actual route in the next phase!
+    if (query.trim()) {
+      onSearch(query);
+    } else {
+      onClear();
     }
   };
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setQuery(val);
+    if (val.trim() === '') {
+      onClear();
+    }
+  };
 
-  const SearchBar = () => (
-    <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-auto w-full relative group">
+  return (
+    <form onSubmit={handleSubmit} className="flex-1 max-w-2xl mx-auto w-full relative group">
       <div className="flex items-center w-full bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all shadow-inner">
         <input 
           type="text" 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={query}
+          onChange={handleChange}
           placeholder="Search for premium products..." 
           className="w-full bg-transparent text-slate-100 px-4 py-2.5 sm:py-2 focus:outline-none placeholder-slate-500"
         />
@@ -44,7 +47,26 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
       </div>
     </form>
   );
+};
 
+export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
+  const { cart, toggleCart } = useCartStore();
+  const { isAuthenticated, isAdmin, userEmail, logout } = useAuthStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const handleSearch = (query: string) => {
+    navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleClearSearch = () => {
+    navigate('/');
+  };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
   return (
     <>
       {/* 
@@ -72,9 +94,8 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
             </Link>
           </div>
           
-          {/* Desktop Search */}
           <div className="hidden lg:flex flex-1 px-8">
-            <SearchBar />
+            <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
           </div>
 
           {/* Desktop Links & Actions */}
@@ -140,9 +161,8 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
           </div>
         </div>
 
-        {/* Mobile Search Row - Only visible on small screens */}
         <div className="lg:hidden px-4 pb-3 pt-1 border-t border-slate-700/30">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
         </div>
       </header>
 
