@@ -41,11 +41,11 @@ export const Search = () => {
     return (
         <div className="w-full py-8">
             <div className="mb-10">
-                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
                     Search Results
                 </h2>
-                <p className="text-slate-400 font-medium text-lg">
-                    {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} for <span className="text-white font-bold">"{query}"</span>
+                <p className="text-slate-600 dark:text-slate-400 font-medium text-lg">
+                    {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} for <span className="text-slate-900 dark:text-white font-bold">"{query}"</span>
                 </p>
             </div>
 
@@ -64,9 +64,9 @@ export const Search = () => {
                         <motion.div 
                             variants={item}
                             key={product.id} 
-                            className="group bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl overflow-hidden hover:bg-slate-800/80 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1"
+                            className="group bg-white/80 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-3xl overflow-hidden hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1"
                         >
-                            <Link to={`/product/${product.id}`} className="block h-56 bg-slate-700/30 relative overflow-hidden flex items-center justify-center">
+                            <Link to={`/product/${product.id}`} className="block h-56 bg-slate-50 dark:bg-slate-700/30 relative overflow-hidden flex items-center justify-center">
                                 <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                             </Link>
@@ -78,19 +78,19 @@ export const Search = () => {
                                             {product.category?.name || 'Uncategorized'}
                                         </div>
                                         <Link to={`/product/${product.id}`}>
-                                            <h3 className="text-lg font-bold text-slate-100 group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
+                                            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
                                         </Link>
                                     </div>
-                                    <span className="text-lg font-black text-white bg-slate-700/50 px-3 py-1 rounded-xl">
+                                    <span className="text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700/50 px-3 py-1 rounded-xl">
                                         ₹{product.price}
                                     </span>
                                 </div>
                                 
-                                <p className="text-sm text-slate-400 mb-6 line-clamp-2 h-10">{product.description}</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2 h-10">{product.description}</p>
                                 
                                 <button 
                                     onClick={() => addToCart(product.id, 1)}
-                                    className="w-full flex items-center justify-center space-x-2 bg-slate-700/50 hover:bg-primary text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 group/btn"
+                                    className="w-full flex items-center justify-center space-x-2 bg-slate-100 dark:bg-slate-700/50 hover:bg-primary text-slate-900 hover:text-white dark:text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 group/btn"
                                 >
                                     <ShoppingCart size={18} className="group-hover/btn:-translate-x-1 transition-transform" />
                                     <span>Add to Cart</span>
@@ -100,12 +100,12 @@ export const Search = () => {
                     ))}
                 </motion.div>
             ) : (
-                <div className="text-center bg-slate-800/40 border border-slate-700/50 rounded-3xl py-20 mt-8 flex flex-col items-center justify-center">
-                    <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center mb-6">
-                        <SearchIcon size={32} className="text-slate-400" />
+                <div className="text-center bg-white/80 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-3xl py-20 mt-8 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-6">
+                        <SearchIcon size={32} className="text-slate-400 dark:text-slate-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">No products found</h3>
-                    <p className="text-slate-400 text-lg max-w-md">
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No products found</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg max-w-md">
                         We couldn't find anything matching "{query}". Try checking your spelling or searching for a more general term.
                     </p>
                     <Link to="/" className="mt-8 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-colors">

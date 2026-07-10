@@ -57,15 +57,15 @@ export const ProductDetail = () => {
       className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8"
     >
       <div className="mb-8">
-        <Link to="/" className="inline-flex items-center space-x-2 text-slate-400 hover:text-primary transition-colors font-medium group">
+        <Link to="/" className="inline-flex items-center space-x-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium group">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           <span>Back to Shop</span>
         </Link>
       </div>
       
-      <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden lg:h-[600px] flex flex-col lg:flex-row">
-        <div className="w-full lg:w-1/2 h-72 lg:h-full bg-slate-700/30 relative overflow-hidden group flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+      <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-3xl shadow-xl dark:shadow-2xl overflow-hidden lg:h-[600px] flex flex-col lg:flex-row">
+        <div className="w-full lg:w-1/2 h-72 lg:h-full bg-slate-100 dark:bg-slate-700/30 relative overflow-hidden group flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/10 dark:from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
           <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
         </div>
         
@@ -78,21 +78,21 @@ export const ProductDetail = () => {
               >
                 {product.category?.name || 'Uncategorized'}
               </Link>
-              <h1 className="text-2xl font-black text-white sm:text-5xl tracking-tight leading-tight">{product.name}</h1>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white sm:text-5xl tracking-tight leading-tight">{product.name}</h1>
             </div>
           </div>
           
-          <div className="mt-2 sm:mt-4 border-t border-slate-700/50 pt-4 sm:pt-6">
+          <div className="mt-2 sm:mt-4 border-t border-slate-200 dark:border-slate-700/50 pt-4 sm:pt-6">
             <h2 className="sr-only">Product Description</h2>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">{product.description}</p>
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">{product.description}</p>
           </div>
 
           <div className="mt-6 sm:mt-8 flex items-center sm:items-end justify-between gap-4">
             <div>
-              <p className="text-xs sm:text-sm text-slate-400 mb-0.5 sm:mb-1">Price</p>
-              <p className="text-2xl sm:text-5xl font-black text-white bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">₹{product.price.toFixed(2)}</p>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-0.5 sm:mb-1">Price</p>
+              <p className="text-2xl sm:text-5xl font-black text-slate-900 dark:text-white">₹{product.price.toFixed(2)}</p>
             </div>
-            <div className="shrink-0 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-emerald-400 font-medium bg-emerald-400/10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-emerald-400/20">
+            <div className="shrink-0 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 dark:bg-emerald-400/10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-emerald-500/20 dark:border-emerald-400/20">
               <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />
               <span className="whitespace-nowrap">{product.stockQuantity} in stock</span>
             </div>

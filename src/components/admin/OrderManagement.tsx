@@ -83,33 +83,33 @@ export const OrderManagement = () => {
     }
   };
 
-  const inputClasses = "block w-full bg-slate-900/50 border border-slate-700/50 text-slate-100 rounded-xl shadow-sm py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-all";
+  const inputClasses = "block w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700/50 text-slate-900 dark:text-slate-100 rounded-xl shadow-sm py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-all";
 
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-          <div className="shadow-2xl overflow-hidden border border-slate-700/50 sm:rounded-2xl bg-slate-800/40 backdrop-blur-md">
-            <table className="min-w-full divide-y divide-slate-700/50">
-              <thead className="bg-slate-900/60">
+          <div className="shadow-xl dark:shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700/50 sm:rounded-2xl bg-white/80 dark:bg-slate-800/40 backdrop-blur-md">
+            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700/50">
+              <thead className="bg-slate-50 dark:bg-slate-900/60">
                 <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Order</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Customer</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Order</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Customer</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
                   <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
-                {isLoadingOrders && <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-medium">Loading orders...</td></tr>}
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-700/50">
+                {isLoadingOrders && <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400 font-medium">Loading orders...</td></tr>}
                 {allOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-700/30 transition-colors duration-150">
+                  <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors duration-150">
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-slate-200">#{order.id}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{new Date(order.orderDate).toLocaleDateString()}</div>
+                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-200">#{order.id}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{new Date(order.orderDate).toLocaleDateString()}</div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-sm text-slate-300">{order.customerEmail}</div>
+                      <div className="text-sm text-slate-700 dark:text-slate-300">{order.customerEmail}</div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
@@ -117,10 +117,10 @@ export const OrderManagement = () => {
                         {order.status}
                       </span>
                       {order.trackingNumber && (
-                        <div className="text-xs text-slate-400 mt-1">{order.carrierName}: {order.trackingNumber}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{order.carrierName}: {order.trackingNumber}</div>
                       )}
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-200">
+                    <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-200">
                       ₹{order.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
@@ -146,12 +146,12 @@ export const OrderManagement = () => {
       <Modal isOpen={activeModal === 'ship'} onClose={closeModal} title={`Ship Order #${selectedOrderId}`}>
         <form onSubmit={handleShipSubmit} className="space-y-5">
           {errorMsg && (
-            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+            <div className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-900/50 flex items-center gap-2">
               <AlertCircle size={16} /> {errorMsg}
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Carrier Name</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Carrier Name</label>
             <input 
               type="text" 
               required 
@@ -162,7 +162,7 @@ export const OrderManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Tracking Number</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tracking Number</label>
             <input 
               type="text" 
               required 
@@ -176,7 +176,7 @@ export const OrderManagement = () => {
             <button 
               type="button" 
               onClick={closeModal}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -194,18 +194,18 @@ export const OrderManagement = () => {
       {/* Cancel Confirmation Modal */}
       <Modal isOpen={activeModal === 'cancel'} onClose={closeModal} title="Cancel Order">
         <div className="space-y-5">
-          <div className="text-slate-300">
+          <div className="text-slate-600 dark:text-slate-300">
             Are you sure you want to cancel order #{selectedOrderId}? The items in this order will automatically be returned to inventory stock.
           </div>
           {errorMsg && (
-            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+            <div className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-900/50 flex items-center gap-2">
               <AlertCircle size={16} /> {errorMsg}
             </div>
           )}
           <div className="pt-2 flex justify-end gap-3">
             <button 
               onClick={closeModal}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               No, Keep Order
             </button>
@@ -223,18 +223,18 @@ export const OrderManagement = () => {
       {/* Deliver Confirmation Modal */}
       <Modal isOpen={activeModal === 'deliver'} onClose={closeModal} title="Mark Delivered">
         <div className="space-y-5">
-          <div className="text-slate-300">
+          <div className="text-slate-600 dark:text-slate-300">
             Confirm that order #{selectedOrderId} has been successfully delivered to the customer?
           </div>
           {errorMsg && (
-            <div className="text-sm text-red-400 bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex items-center gap-2">
+            <div className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-900/50 flex items-center gap-2">
               <AlertCircle size={16} /> {errorMsg}
             </div>
           )}
           <div className="pt-2 flex justify-end gap-3">
             <button 
               onClick={closeModal}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
