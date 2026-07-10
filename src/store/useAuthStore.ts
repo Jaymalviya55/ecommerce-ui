@@ -6,6 +6,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   userEmail: string | null;
+  userId: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   setTokens: (accessToken: string, refreshToken: string) => void;
@@ -20,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       userEmail: null,
+      userId: null,
       isAuthenticated: false,
       isAdmin: false,
       setTokens: (accessToken, refreshToken) => {
@@ -35,13 +37,15 @@ export const useAuthStore = create<AuthState>()(
         const isAdmin = roleClaim === 'Admin' || (Array.isArray(roleClaim) && roleClaim.includes('Admin'));
         console.log("Is Admin evaluated to:", isAdmin);
         
-        set({ accessToken, refreshToken, isAuthenticated: true, isAdmin });
+        const userId = decoded?.uid || null;
+        
+        set({ accessToken, refreshToken, isAuthenticated: true, isAdmin, userId });
       },
       setUser: (email) => set({ userEmail: email }),
       logout: () => {
         localStorage.removeItem('auth-storage');
         localStorage.removeItem('cart_session_id');
-        set({ accessToken: null, refreshToken: null, userEmail: null, isAuthenticated: false, isAdmin: false });
+        set({ accessToken: null, refreshToken: null, userEmail: null, userId: null, isAuthenticated: false, isAdmin: false });
       },
     }),
     {

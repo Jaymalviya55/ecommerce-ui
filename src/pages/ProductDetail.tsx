@@ -5,6 +5,7 @@ import type { Product } from '../store/useProductStore';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import { getProductImage } from '../utils/imageMap';
+import { ProductReviews } from '../components/ProductReviews';
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -77,37 +78,40 @@ export const ProductDetail = () => {
               >
                 {product.category?.name || 'Uncategorized'}
               </Link>
-              <h1 className="text-4xl font-black text-white sm:text-5xl tracking-tight leading-tight">{product.name}</h1>
+              <h1 className="text-2xl font-black text-white sm:text-5xl tracking-tight leading-tight">{product.name}</h1>
             </div>
           </div>
           
-          <div className="mt-4 border-t border-slate-700/50 pt-6">
+          <div className="mt-2 sm:mt-4 border-t border-slate-700/50 pt-4 sm:pt-6">
             <h2 className="sr-only">Product Description</h2>
-            <p className="text-lg text-slate-300 leading-relaxed">{product.description}</p>
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">{product.description}</p>
           </div>
 
-          <div className="mt-8 flex items-end justify-between">
+          <div className="mt-6 sm:mt-8 flex items-center sm:items-end justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-400 mb-1">Price</p>
-              <p className="text-5xl font-black text-white bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">₹{product.price.toFixed(2)}</p>
+              <p className="text-xs sm:text-sm text-slate-400 mb-0.5 sm:mb-1">Price</p>
+              <p className="text-2xl sm:text-5xl font-black text-white bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">₹{product.price.toFixed(2)}</p>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-emerald-400 font-medium bg-emerald-400/10 px-3 py-2 rounded-xl border border-emerald-400/20">
-              <CheckCircle2 size={18} />
-              <span>{product.stockQuantity} in stock</span>
+            <div className="shrink-0 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-emerald-400 font-medium bg-emerald-400/10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-emerald-400/20">
+              <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+              <span className="whitespace-nowrap">{product.stockQuantity} in stock</span>
             </div>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-6 sm:mt-10">
             <button
               onClick={() => addToCart(product.id, 1)}
-              className="w-full bg-primary hover:bg-primary-dark border border-transparent rounded-2xl py-4 px-8 flex items-center justify-center space-x-3 text-lg font-bold text-white transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 group"
+              className="w-full bg-primary hover:bg-primary-dark border border-transparent rounded-lg sm:rounded-2xl py-2.5 sm:py-4 px-4 sm:px-8 flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-lg font-bold text-white transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 group"
             >
-              <ShoppingCart size={22} className="group-hover:-translate-x-1 transition-transform" />
+              <ShoppingCart size={18} className="sm:w-[22px] sm:h-[22px] group-hover:-translate-x-1 transition-transform" />
               <span>Add to Cart</span>
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Product Reviews Section */}
+      <ProductReviews productId={Number(id)} />
     </motion.div>
   );
 };
