@@ -112,10 +112,10 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const userReview = reviews.find(r => r.userId === currentUserId);
 
   return (
-    <div className="mt-8 sm:mt-10 bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-2xl mb-8 sm:mb-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-slate-700/50">
+    <div className="mt-8 sm:mt-10 bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-xl dark:shadow-2xl mb-8 sm:mb-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-slate-200 dark:border-slate-700/50">
         <div className="w-full">
-          <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
             <MessageCircle className="text-primary" size={20} />
             Customer Reviews
           </h2>
@@ -125,15 +125,15 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                 <Star 
                   key={star} 
                   size={16} 
-                  className={`sm:w-5 sm:h-5 ${star <= averageRating ? "text-yellow-400 fill-yellow-400" : "text-slate-600"}`} 
+                  className={`sm:w-5 sm:h-5 ${star <= averageRating ? "text-yellow-400 fill-yellow-400" : "text-slate-300 dark:text-slate-600"}`} 
                 />
               ))}
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-base sm:text-xl font-bold text-white">{averageRating.toFixed(1)}</span>
-              <span className="text-xs sm:text-base text-slate-300">out of 5</span>
+              <span className="text-base sm:text-xl font-bold text-slate-900 dark:text-white">{averageRating.toFixed(1)}</span>
+              <span className="text-xs sm:text-base text-slate-600 dark:text-slate-300">out of 5</span>
             </div>
-            <span className="text-xs sm:text-sm text-slate-400">({totalReviews} reviews)</span>
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">({totalReviews} reviews)</span>
           </div>
         </div>
         
@@ -167,10 +167,10 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       </div>
 
       {isFormOpen && (
-        <form onSubmit={handleSubmit} className="mb-8 bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
+        <form onSubmit={handleSubmit} className="mb-8 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700/50">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-bold text-white">{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-400 hover:text-white transition-colors">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               <X size={20} />
             </button>
           </div>
@@ -178,7 +178,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
           {error && <div className="mb-4 text-red-400 bg-red-900/20 p-3 rounded-lg text-sm border border-red-900/50">{error}</div>}
 
           <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-300 mb-2">Overall Rating</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Overall Rating</label>
             <div className="flex gap-1 sm:gap-2">
               {[1, 2, 3, 4, 5].map(star => (
                 <button
@@ -187,21 +187,21 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                   onClick={() => setRating(star)}
                   className="focus:outline-none transition-transform hover:scale-110"
                 >
-                  <Star size={28} className={star <= rating ? "text-yellow-400 fill-yellow-400" : "text-slate-600"} />
+                  <Star size={28} className={star <= rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300 dark:text-slate-600"} />
                 </button>
               ))}
             </div>
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-300 mb-2">Your Review</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Your Review</label>
             <textarea
               required
               rows={3}
               maxLength={1000}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none"
+              className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none"
               placeholder="What did you like or dislike? What should other shoppers know?"
             />
           </div>
@@ -210,7 +210,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
             <button
               type="button"
               onClick={handleCloseForm}
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 sm:border-transparent transition-colors"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-transparent transition-colors"
             >
               Cancel
             </button>
@@ -231,23 +231,23 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
         </div>
       ) : reviews.length === 0 ? (
         !isFormOpen && (
-          <div className="text-center py-8 bg-slate-900/30 rounded-xl border border-slate-700/50">
-            <MessageCircle size={32} className="mx-auto text-slate-600 mb-2" />
-            <p className="text-slate-300 font-medium">No reviews yet.</p>
+          <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-200 dark:border-slate-700/50">
+            <MessageCircle size={32} className="mx-auto text-slate-400 dark:text-slate-600 mb-2" />
+            <p className="text-slate-600 dark:text-slate-300 font-medium">No reviews yet.</p>
             <p className="text-slate-500 text-sm">Be the first to share your thoughts!</p>
           </div>
         )
       ) : (
         <div className="space-y-3">
           {reviews.map(review => (
-            <div key={review.id} className="bg-slate-900/30 border border-slate-700/50 rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-900/50 group">
+            <div key={review.id} className="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/50 rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/50 group shadow-sm dark:shadow-none">
               <div className="flex justify-between items-start mb-3 gap-2 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full bg-gradient-to-tr from-primary to-primary-hover flex items-center justify-center text-white font-black text-lg sm:text-xl shadow-lg shadow-primary/20">
                     {review.userName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-bold text-white text-sm sm:text-base leading-tight">{review.userName}</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">{review.userName}</p>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                       {review.updatedAt && ' (Edited)'}
@@ -257,11 +257,11 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                 
                 <div className="flex shrink-0 mt-1 sm:mt-0">
                   {[1, 2, 3, 4, 5].map(star => (
-                    <Star key={star} size={14} className={`sm:w-4 sm:h-4 ${star <= review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-700"}`} />
+                    <Star key={star} size={14} className={`sm:w-4 sm:h-4 ${star <= review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300 dark:text-slate-700"}`} />
                   ))}
                 </div>
               </div>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">{review.comment}</p>
+              <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">{review.comment}</p>
             </div>
           ))}
         </div>

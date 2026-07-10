@@ -42,17 +42,17 @@ export const Profile = () => {
         
         {/* Sidebar */}
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 flex flex-col gap-2">
+          <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4 flex flex-col gap-2 shadow-sm dark:shadow-none">
             <button 
               onClick={() => setActiveTab('account')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'account' ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'account' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
             >
               <User size={20} />
               Account Details
             </button>
             <button 
               onClick={() => setActiveTab('orders')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
             >
               <Package size={20} />
               My Orders
@@ -63,33 +63,33 @@ export const Profile = () => {
         {/* Content Area */}
         <div className="flex-1">
           {activeTab === 'account' && (
-            <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 overflow-hidden rounded-2xl shadow-2xl">
+            <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden rounded-2xl shadow-xl dark:shadow-2xl">
               <div className="px-6 py-6">
-                <h3 className="text-xl leading-6 font-semibold text-slate-100">User Profile</h3>
-                <p className="mt-2 max-w-2xl text-sm text-slate-400">Personal details and secure information.</p>
+                <h3 className="text-xl leading-6 font-semibold text-slate-900 dark:text-slate-100">User Profile</h3>
+                <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">Personal details and secure information.</p>
               </div>
-              <div className="border-t border-slate-700/50">
+              <div className="border-t border-slate-200 dark:border-slate-700/50">
                 <dl>
-                  <div className="bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-400">Email address</dt>
-                    <dd className="mt-1 text-sm text-slate-200 sm:mt-0 sm:col-span-2 font-medium">{userEmail}</dd>
+                  <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Email address</dt>
+                    <dd className="mt-1 text-sm text-slate-900 dark:text-slate-200 sm:mt-0 sm:col-span-2 font-medium">{userEmail}</dd>
                   </div>
-                  <div className="bg-transparent px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-400">Security Status</dt>
-                    <dd className="mt-1 text-sm text-emerald-400 font-medium flex items-center gap-2 sm:mt-0 sm:col-span-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                  <div className="bg-white dark:bg-transparent px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Security Status</dt>
+                    <dd className="mt-1 text-sm text-emerald-500 dark:text-emerald-400 font-medium flex items-center gap-2 sm:mt-0 sm:col-span-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></div>
                       Fully Authenticated (JWT)
                     </dd>
                   </div>
-                  <div className="bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-400">Account Type</dt>
+                  <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Account Type</dt>
                     <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
                       {isAdmin ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/20 text-primary border border-primary/30 shadow-inner">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 dark:bg-primary/20 text-primary border border-primary/20 dark:border-primary/30 shadow-inner">
                           Admin User
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-700/50 text-slate-300 border border-slate-600/50">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600/50">
                           Standard User
                         </span>
                       )}
@@ -101,31 +101,31 @@ export const Profile = () => {
           )}
 
           {activeTab === 'orders' && (
-            <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-2xl p-6">
-              <h3 className="text-xl font-semibold text-slate-100 mb-6">Order History</h3>
+            <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-2xl p-6">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">Order History</h3>
               
               {isLoading ? (
                 <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : error ? (
-                <div className="text-red-400 bg-red-400/10 p-4 rounded-xl border border-red-400/20">{error}</div>
+                <div className="text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-400/10 p-4 rounded-xl border border-red-200 dark:border-red-400/20">{error}</div>
               ) : myOrders.length === 0 ? (
-                <div className="text-center py-12 text-slate-400">
-                  <Package size={48} className="mx-auto mb-4 opacity-50 text-slate-500" />
+                <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                  <Package size={48} className="mx-auto mb-4 opacity-50 text-slate-400 dark:text-slate-500" />
                   <p>You haven't placed any orders yet.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {myOrders.map(order => (
-                    <div key={order.id} className="bg-slate-900/50 border border-slate-700/50 rounded-xl overflow-hidden">
-                      <div className="p-4 border-b border-slate-700/50 flex flex-wrap justify-between items-center gap-4 bg-slate-800/50">
+                    <div key={order.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+                      <div className="p-4 border-b border-slate-200 dark:border-slate-700/50 flex flex-wrap justify-between items-center gap-4 bg-slate-50 dark:bg-slate-800/50">
                         <div>
-                          <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Order #{order.id}</p>
-                          <p className="text-sm text-slate-300 mt-1">{new Date(order.orderDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Order #{order.id}</p>
+                          <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">{new Date(order.orderDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                          <p className="text-lg font-bold text-white">₹{order.totalAmount.toFixed(2)}</p>
+                          <p className="text-lg font-bold text-slate-900 dark:text-white">₹{order.totalAmount.toFixed(2)}</p>
                           <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(order.status)}`}>
                             {getStatusIcon(order.status)}
                             {order.status}
@@ -134,27 +134,27 @@ export const Profile = () => {
                       </div>
                       
                       {order.trackingNumber && order.carrierName && (
-                        <div className="bg-slate-800/30 px-4 py-3 border-b border-slate-700/50 flex items-center gap-3">
+                        <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-3 border-b border-slate-200 dark:border-slate-700/50 flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                            <Truck size={16} className="text-indigo-400" />
+                            <Truck size={16} className="text-indigo-600 dark:text-indigo-400" />
                           </div>
                           <div>
-                            <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Tracking Information</p>
-                            <p className="text-sm font-semibold text-slate-200 mt-0.5">
-                              {order.carrierName} <span className="text-slate-500 mx-2">•</span> <span className="text-primary tracking-wide font-mono">{order.trackingNumber}</span>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Tracking Information</p>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                              {order.carrierName} <span className="text-slate-400 dark:text-slate-500 mx-2">•</span> <span className="text-primary tracking-wide font-mono">{order.trackingNumber}</span>
                             </p>
                           </div>
                         </div>
                       )}
                       <div className="p-4">
-                        <ul className="divide-y divide-slate-700/50">
+                        <ul className="divide-y divide-slate-200 dark:divide-slate-700/50">
                           {order.items.map((item, idx) => (
                             <li key={idx} className="py-3 flex justify-between items-center first:pt-0 last:pb-0">
                               <div>
-                                <p className="text-sm font-medium text-slate-200">{item.productName}</p>
-                                <p className="text-xs text-slate-400">Qty: {item.quantity}</p>
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{item.productName}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Qty: {item.quantity}</p>
                               </div>
-                              <p className="text-sm font-semibold text-slate-300">₹{(item.unitPrice * item.quantity).toFixed(2)}</p>
+                              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">₹{(item.unitPrice * item.quantity).toFixed(2)}</p>
                             </li>
                           ))}
                         </ul>

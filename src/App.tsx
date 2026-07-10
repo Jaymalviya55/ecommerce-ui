@@ -15,6 +15,7 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { useCartStore } from './store/useCartStore'
 import { useAuthStore } from './store/useAuthStore'
+import { useThemeStore } from './store/useThemeStore'
 import { Analytics } from '@vercel/analytics/react'
 // Cleaned up unused lucide icons
 import { motion, AnimatePresence } from 'framer-motion'
@@ -23,6 +24,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 function App() {
   const { fetchCart } = useCartStore()
   const { logout } = useAuthStore()
+  useThemeStore() // init theme store for persistence
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const location = useLocation()
 
@@ -58,7 +60,7 @@ function App() {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900 text-slate-50 selection:bg-primary selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 selection:bg-primary selection:text-white transition-colors duration-300">
       <CartSidebar />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       

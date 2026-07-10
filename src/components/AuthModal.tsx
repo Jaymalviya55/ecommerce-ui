@@ -53,7 +53,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/80 backdrop-blur-md" 
+            className="fixed inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md" 
             onClick={onClose}
           />
 
@@ -62,23 +62,23 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl rounded-3xl overflow-hidden"
+            className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-2xl rounded-3xl overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-indigo-400"></div>
             
             <div className="p-8">
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-3xl font-black text-white tracking-tight mb-2">
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
                     {isLogin ? 'Welcome Back' : 'Create Account'}
                   </h3>
-                  <p className="text-slate-400 text-sm font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                     {isLogin ? 'Enter your details to access your account.' : 'Join us for a premium shopping experience.'}
                   </p>
                 </div>
                 <button
                   type="button"
-                  className="text-slate-400 hover:text-white hover:bg-slate-700/50 p-2 rounded-full transition-colors"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 p-2 rounded-full transition-colors"
                   onClick={onClose}
                 >
                   <X size={20} />
@@ -94,8 +94,8 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                       exit={{ opacity: 0, height: 0 }}
                       className={`p-4 rounded-xl text-sm font-medium flex items-center space-x-2 ${
                         error.includes('successful') 
-                          ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
-                          : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
+                          : 'bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400'
                       }`}
                     >
                       <ShieldCheck size={18} className="flex-shrink-0" />
@@ -105,15 +105,15 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </AnimatePresence>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Email Address</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail size={18} className="text-slate-500" />
+                      <Mail size={18} className="text-slate-400 dark:text-slate-500" />
                     </div>
                     <input
                       type="email"
                       required
-                      className="block w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      className="block w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -122,16 +122,16 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Password</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Lock size={18} className="text-slate-500" />
+                      <Lock size={18} className="text-slate-400 dark:text-slate-500" />
                     </div>
                     <input
                       type="password"
                       required
                       minLength={8}
-                      className="block w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      className="block w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -157,12 +157,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               </form>
 
               <div className="mt-8 text-center text-sm font-medium">
-                <span className="text-slate-500">
+                <span className="text-slate-600 dark:text-slate-500">
                   {isLogin ? "Don't have an account? " : "Already have an account? "}
                 </span>
                 <button
                   type="button"
-                  className="text-primary hover:text-white transition-colors"
+                  className="text-primary hover:text-primary-dark transition-colors"
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setError('');
