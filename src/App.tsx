@@ -66,7 +66,7 @@ function App() {
       
       <Navbar onOpenAuthModal={() => setIsAuthModalOpen(true)} />
       
-      <main className="flex-1 pt-32 pb-12 px-4 w-full max-w-7xl mx-auto">
+      <main className="flex-1 pt-32 pb-12 px-4 w-full max-w-[1750px] mx-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
