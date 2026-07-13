@@ -92,7 +92,7 @@ export const ProductDetail = () => {
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-0.5 sm:mb-1">Price</p>
               <p className="text-2xl sm:text-5xl font-black text-slate-900 dark:text-white">₹{product.price.toFixed(2)}</p>
             </div>
-            <div className="shrink-0 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 dark:bg-emerald-400/10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-emerald-500/20 dark:border-emerald-400/20">
+            <div className={`shrink-0 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm font-medium px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border ${product.stockQuantity <= 15 ? 'text-rose-600 dark:text-rose-400 bg-rose-500/10 dark:bg-rose-400/10 border-rose-500/20 dark:border-rose-400/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 border-emerald-500/20 dark:border-emerald-400/20'}`}>
               <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />
               <span className="whitespace-nowrap">{product.stockQuantity} in stock</span>
             </div>
