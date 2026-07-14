@@ -22,7 +22,7 @@ export const Home = () => {
     }, [products]);
 
     if (isLoading) return (
-        <div className="flex justify-center items-center h-64 mt-20">
+        <div className="flex justify-center items-center h-64 mt-20 min-h-[50vh]">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
     );

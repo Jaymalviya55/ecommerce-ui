@@ -37,7 +37,7 @@ export const ProductDetail = () => {
   }, [id]);
 
   if (isLoading) return (
-    <div className="flex justify-center items-center h-64 mt-20">
+    <div className="flex justify-center items-center h-64 mt-20 min-h-[50vh]">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
   );
@@ -66,7 +66,7 @@ export const ProductDetail = () => {
       <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-3xl shadow-xl dark:shadow-2xl overflow-hidden lg:h-[600px] flex flex-col lg:flex-row">
         <div className="w-full lg:w-1/2 h-72 lg:h-full bg-slate-100 dark:bg-slate-700/30 relative overflow-hidden group flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/10 dark:from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-          <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" width={600} height={600} />
         </div>
         
         <div className="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center overflow-y-auto">
