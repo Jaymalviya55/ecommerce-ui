@@ -22,8 +22,16 @@ export const Home = () => {
     }, [products]);
 
     if (isLoading) return (
-        <div className="flex justify-center items-center h-64 mt-20 min-h-[50vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="py-16 max-w-[1750px] w-full mx-auto px-4 sm:px-8 xl:px-16">
+            <div className="mb-20 text-center">
+                <div className="h-12 w-72 bg-slate-200 dark:bg-slate-700 rounded-xl mx-auto mb-4 animate-pulse"></div>
+                <div className="h-6 w-96 bg-slate-200 dark:bg-slate-700 rounded-lg mx-auto animate-pulse"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 lg:gap-x-24 xl:gap-x-32 gap-y-32 justify-items-center">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="w-[280px] sm:w-[320px] h-[440px] bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl animate-pulse"></div>
+                ))}
+            </div>
         </div>
     );
     
