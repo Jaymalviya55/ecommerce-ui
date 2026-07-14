@@ -51,8 +51,8 @@ export const ProductDetail = () => {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8"
     >
