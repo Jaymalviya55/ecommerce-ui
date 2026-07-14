@@ -11,7 +11,22 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            return 'vendor';
+            if (id.includes('recharts')) {
+              return 'vendor-recharts';
+            }
+            if (id.includes('react-simple-maps') || id.includes('d3')) {
+              return 'vendor-maps';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('react/') || id.includes('react-dom/')) {
+              return 'vendor-react';
+            }
+            return 'vendor-core';
           }
         }
       }

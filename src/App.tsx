@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { Home } from './pages/Home'
-import { Profile } from './pages/Profile'
-import { Checkout } from './pages/Checkout'
-import { ProductDetail } from './pages/ProductDetail'
-import { Category } from './pages/Category'
-import { Search } from './pages/Search'
-import { AdminDashboard } from './pages/AdminDashboard'
+
+// Lazy load pages to split code and improve FCP/LCP
+const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })))
+const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })))
+const Checkout = lazy(() => import('./pages/Checkout').then(module => ({ default: module.Checkout })))
+const ProductDetail = lazy(() => import('./pages/ProductDetail').then(module => ({ default: module.ProductDetail })))
+const Category = lazy(() => import('./pages/Category').then(module => ({ default: module.Category })))
+const Search = lazy(() => import('./pages/Search').then(module => ({ default: module.Search })))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
 import { CartSidebar } from './components/CartSidebar'
@@ -76,21 +79,27 @@ function App() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="min-h-[calc(100vh-250px)]"
           >
-            <Routes location={location}>
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/category/:name" element={<Category />} />
-              <Route path="/search" element={<Search />} />
-              
-              <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/checkout" element={<Checkout />} />
-              </Route>
+            <Suspense fallback={
+              <div className="flex justify-center items-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            }>
+              <Routes location={location}>
+                <Route path="/" element={<Home />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/category/:name" element={<Category />} />
+                <Route path="/search" element={<Search />} />
+                
+                <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                </Route>
 
-              <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<AdminDashboard />} />
-              </Route>
-            </Routes>
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                </Route>
+              </Routes>
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
