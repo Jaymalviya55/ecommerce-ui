@@ -68,6 +68,8 @@ export const CategoryStack = ({ categoryName, products }: CategoryStackProps) =>
                                 className="w-full h-full object-cover opacity-60 dark:opacity-40 grayscale-[20%]" 
                                 loading="lazy"
                                 decoding="async"
+                                width={320}
+                                height={224}
                             />
                             </div>
                             <div className="flex-1 bg-white dark:bg-slate-800 p-6 flex flex-col justify-center opacity-40">
@@ -93,6 +95,8 @@ export const CategoryStack = ({ categoryName, products }: CategoryStackProps) =>
                             fetchPriority="high"
                             loading="eager"
                             decoding="async"
+                            width={320}
+                            height={224}
                         />
                         {/* Dark gradient for text readability */}
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />

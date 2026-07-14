@@ -41,7 +41,7 @@ export const Category = () => {
 
   if (isLoading && products.length === 0) {
     return (
-      <div className="flex justify-center items-center h-64 mt-20">
+      <div className="flex justify-center items-center h-64 mt-20 min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -87,7 +87,7 @@ export const Category = () => {
             className="group bg-white/80 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-3xl overflow-hidden hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 flex flex-col"
           >
             <Link to={`/product/${product.id}`} className="block h-56 bg-slate-50 dark:bg-slate-700/30 relative overflow-hidden flex items-center justify-center">
-                <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" width={400} height={400} />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
             </Link>
             
