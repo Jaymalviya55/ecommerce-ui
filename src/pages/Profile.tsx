@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useOrderStore } from '../store/useOrderStore';
-import { User, Package, Clock, CheckCircle, Truck, XCircle } from 'lucide-react';
+import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle } from 'lucide-react';
+import { API_URL } from '../config';
 
 export const Profile = () => {
-  const { userEmail, isAdmin } = useAuthStore();
+  const { userEmail, isAdmin, roles } = useAuthStore();
   const { myOrders, isLoading, error, fetchMyOrders } = useOrderStore();
   const [activeTab, setActiveTab] = useState<'account' | 'orders'>('account');
 
@@ -13,6 +14,53 @@ export const Profile = () => {
       fetchMyOrders();
     }
   }, [activeTab, fetchMyOrders]);
+
+  const handleCancelOrder = async (orderId: number) => {
+    if(!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${useAuthStore.getState().accessToken}` }
+      });
+      if(res.ok) {
+        fetchMyOrders();
+      } else {
+        const text = await res.text();
+        alert(`Could not cancel: ${text}`);
+      }
+    } catch (e) {
+      alert("Network error.");
+    }
+  };
+
+  const renderOrderTimeline = (status: string) => {
+    const steps = ['Pending', 'Paid', 'Shipped', 'Delivered'];
+    const currentIndex = status === 'Cancelled' ? -1 : steps.indexOf(status);
+
+    if (status === 'Cancelled') {
+      return (
+        <div className="my-2 p-2.5 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-lg border border-rose-200 dark:border-rose-500/20 text-sm font-semibold flex items-center justify-center gap-2">
+          <XCircle size={16} /> Order Cancelled & Refunded
+        </div>
+      );
+    }
+
+    return (
+      <div className="my-3 px-2">
+        <div className="relative">
+          <div className="overflow-hidden h-1.5 mb-2 text-xs flex rounded-full bg-slate-200 dark:bg-slate-700">
+            <div style={{ width: `${(currentIndex / (steps.length - 1)) * 100}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary transition-all duration-1000 ease-out"></div>
+          </div>
+          <div className="flex justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+             {steps.map((s, i) => (
+                <span key={s} className={i <= currentIndex ? 'text-primary font-bold' : ''}>{s}</span>
+             ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -50,13 +98,15 @@ export const Profile = () => {
               <User size={20} />
               Account Details
             </button>
-            <button 
-              onClick={() => setActiveTab('orders')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
-            >
-              <Package size={20} />
-              My Orders
-            </button>
+            {!roles.includes('FulfillmentStaff') && (
+              <button 
+                onClick={() => setActiveTab('orders')}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+              >
+                <Package size={20} />
+                My Orders
+              </button>
+            )}
           </div>
         </div>
 
@@ -100,7 +150,7 @@ export const Profile = () => {
             </div>
           )}
 
-          {activeTab === 'orders' && (
+          {!roles.includes('FulfillmentStaff') && activeTab === 'orders' && (
             <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-2xl p-6">
               <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">Order History</h3>
               
@@ -146,7 +196,12 @@ export const Profile = () => {
                           </div>
                         </div>
                       )}
-                      <div className="p-4">
+                      
+                      <div className="px-4">
+                         {renderOrderTimeline(order.status)}
+                      </div>
+
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/30">
                         <ul className="divide-y divide-slate-200 dark:divide-slate-700/50">
                           {order.items.map((item, idx) => (
                             <li key={idx} className="py-3 flex justify-between items-center first:pt-0 last:pb-0">
@@ -158,6 +213,17 @@ export const Profile = () => {
                             </li>
                           ))}
                         </ul>
+                        
+                        {(order.status === 'Pending' || order.status === 'Paid') && (
+                          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700/50 flex justify-end">
+                            <button 
+                              onClick={() => handleCancelOrder(order.id)}
+                              className="px-4 py-2 text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded-lg transition-colors flex items-center gap-2"
+                            >
+                              <AlertCircle size={16} /> Cancel Order
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
