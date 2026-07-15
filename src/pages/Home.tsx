@@ -1,13 +1,21 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProductStore } from '../store/useProductStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { CategoryStack } from '../components/CategoryStack';
+import { Navigate } from 'react-router-dom';
 
 export const Home = () => {
     const { products, isLoading, error, fetchProducts } = useProductStore();
+    const { roles, isAdmin } = useAuthStore();
 
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
+
+    const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
+    if (isWarehouseOnly) {
+        return <Navigate to="/fulfillment" replace />;
+    }
 
     const categoriesMap = useMemo(() => {
         const map = new Map<string, any[]>();

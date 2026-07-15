@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -52,11 +52,13 @@ const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, o
 
 export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
   const { cart, toggleCart } = useCartStore();
-  const { isAuthenticated, isAdmin, userEmail, logout } = useAuthStore();
+  const { isAuthenticated, isAdmin, userEmail, logout, roles } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
+  
   const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const handleSearch = (query: string) => {
@@ -95,22 +97,34 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
           </div>
           
           <div className="hidden lg:flex flex-1 px-8">
-            <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
+            {!isWarehouseOnly && <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />}
           </div>
 
           {/* Desktop Links & Actions */}
           <div className="flex items-center space-x-2 sm:space-x-6">
             <nav className="hidden lg:block">
               <ul className="flex items-center space-x-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
-                <li><Link to="/" className="hover:text-primary transition-colors">Shop</Link></li>
-                <li><Link to="/category/electronics" className="hover:text-primary transition-colors">Tech</Link></li>
-                <li><Link to="/category/clothes" className="hover:text-primary transition-colors">Apparel</Link></li>
+                {!isWarehouseOnly && (
+                  <>
+                    <li><Link to="/" className="hover:text-primary transition-colors">Shop</Link></li>
+                    <li><Link to="/category/electronics" className="hover:text-primary transition-colors">Tech</Link></li>
+                    <li><Link to="/category/clothes" className="hover:text-primary transition-colors">Apparel</Link></li>
+                  </>
+                )}
                 
                 {isAdmin && (
                   <li>
-                    <Link to="/admin" className="flex items-center space-x-1 text-emerald-400 hover:textemerald-300 transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-full">
+                    <Link to="/admin" className="flex items-center space-x-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-full">
                       <Shield size={14} />
                       <span>Admin</span>
+                    </Link>
+                  </li>
+                )}
+                {roles.includes('FulfillmentStaff') && (
+                  <li>
+                    <Link to="/fulfillment" className="flex items-center space-x-1 text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors bg-purple-500/10 px-3 py-1.5 rounded-full">
+                      <Package size={14} />
+                      <span>Warehouse</span>
                     </Link>
                   </li>
                 )}
@@ -147,32 +161,36 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                 </button>
               )}
               
-              <button 
-                onClick={toggleCart}
-                className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors group"
-                aria-label="Open Cart"
-              >
-                <ShoppingBag size={24} className="group-hover:scale-110 transition-transform duration-300" />
-                <AnimatePresence>
-                  {cartItemCount > 0 && (
-                    <motion.span 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg border-2 border-slate-800"
-                    >
-                      {cartItemCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
+              {!isWarehouseOnly && (
+                <button 
+                  onClick={toggleCart}
+                  className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors group"
+                  aria-label="Open Cart"
+                >
+                  <ShoppingBag size={24} className="group-hover:scale-110 transition-transform duration-300" />
+                  <AnimatePresence>
+                    {cartItemCount > 0 && (
+                      <motion.span 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg border-2 border-slate-800"
+                      >
+                        {cartItemCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="lg:hidden px-4 pb-3 pt-1 border-t border-slate-200 dark:border-slate-700/30">
-          <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
-        </div>
+        {!isWarehouseOnly && (
+          <div className="lg:hidden px-4 pb-3 pt-1 border-t border-slate-200 dark:border-slate-700/30">
+            <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
+          </div>
+        )}
       </header>
 
       {/* Mobile Sidebar Menu (Hamburger Drawer) */}
@@ -205,15 +223,27 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
 
               <div className="flex-1 overflow-y-auto py-4">
                 <nav className="space-y-1 px-3">
-                  <Link to="/" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Home (Shop All)</Link>
-                  <Link to="/category/electronics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Electronics</Link>
-                  <Link to="/category/clothes" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Apparel</Link>
+                  {!isWarehouseOnly && (
+                    <>
+                      <Link to="/" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Home (Shop All)</Link>
+                      <Link to="/category/electronics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Electronics</Link>
+                      <Link to="/category/clothes" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Apparel</Link>
+                    </>
+                  )}
                   
                   {isAdmin && (
                     <Link to="/admin" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-colors mt-4 border border-emerald-500/20">
                       <div className="flex items-center space-x-2">
                         <Shield size={18} />
                         <span>Admin Dashboard</span>
+                      </div>
+                    </Link>
+                  )}
+                  {(roles.includes('FulfillmentStaff')) && (
+                    <Link to="/fulfillment" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-colors mt-2 border border-purple-500/20">
+                      <div className="flex items-center space-x-2">
+                        <Package size={18} />
+                        <span>Fulfillment Station</span>
                       </div>
                     </Link>
                   )}
