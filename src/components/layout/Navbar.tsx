@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package, MessagesSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -128,6 +128,14 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                     </Link>
                   </li>
                 )}
+                {(isAdmin || roles.includes('SupportAgent')) && (
+                  <li>
+                    <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
+                      <MessagesSquare size={14} />
+                      <span>Support Desk</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </nav>
 
@@ -244,6 +252,14 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                       <div className="flex items-center space-x-2">
                         <Package size={18} />
                         <span>Fulfillment Station</span>
+                      </div>
+                    </Link>
+                  )}
+                  {(roles.includes('SupportAgent') || isAdmin) && (
+                    <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
+                      <div className="flex items-center space-x-2">
+                        <MessagesSquare size={18} />
+                        <span>Support Desk</span>
                       </div>
                     </Link>
                   )}

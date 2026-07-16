@@ -11,6 +11,7 @@ const Category = lazy(() => import('./pages/Category').then(module => ({ default
 const Search = lazy(() => import('./pages/Search').then(module => ({ default: module.Search })))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })))
 const FulfillmentDashboard = lazy(() => import('./pages/FulfillmentDashboard').then(module => ({ default: module.FulfillmentDashboard })))
+const SupportDashboard = lazy(() => import('./pages/SupportDashboard').then(module => ({ default: module.SupportDashboard })))
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
 import { FulfillmentRoute } from './components/FulfillmentRoute'
@@ -24,6 +25,7 @@ import { useThemeStore } from './store/useThemeStore'
 import { Analytics } from '@vercel/analytics/react'
 // Cleaned up unused lucide icons
 import { motion, AnimatePresence } from 'framer-motion'
+import { SupportRoute } from './components/SupportRoute'
 // Search is imported from pages
 
 function App() {
@@ -103,6 +105,9 @@ function App() {
                 
                 <Route element={<FulfillmentRoute />}>
                   <Route path="/fulfillment" element={<FulfillmentDashboard />} />
+                </Route>
+                <Route element={<SupportRoute />}>
+                  <Route path="/support" element={<SupportDashboard />} />
                 </Route>
               </Routes>
             </Suspense>
