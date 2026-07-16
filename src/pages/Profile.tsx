@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useOrderStore } from '../store/useOrderStore';
-import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle } from 'lucide-react';
+import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, MessagesSquare } from 'lucide-react';
+import { CustomerTickets } from '../components/profile/CustomerTickets';
 import { API_URL } from '../config';
 
 export const Profile = () => {
   const { userEmail, isAdmin, roles } = useAuthStore();
   const { myOrders, isLoading, error, fetchMyOrders } = useOrderStore();
-  const [activeTab, setActiveTab] = useState<'account' | 'orders'>('account');
+  const [activeTab, setActiveTab] = useState<'account' | 'orders' | 'support'>('account');
 
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -99,13 +100,22 @@ export const Profile = () => {
               Account Details
             </button>
             {!roles.includes('FulfillmentStaff') && (
-              <button 
-                onClick={() => setActiveTab('orders')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
-              >
-                <Package size={20} />
-                My Orders
-              </button>
+              <>
+                <button 
+                  onClick={() => setActiveTab('orders')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+                >
+                  <Package size={20} />
+                  My Orders
+                </button>
+                <button 
+                  onClick={() => setActiveTab('support')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'support' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+                >
+                  <MessagesSquare size={20} />
+                  Help & Support
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -230,6 +240,10 @@ export const Profile = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {!roles.includes('FulfillmentStaff') && activeTab === 'support' && (
+            <CustomerTickets />
           )}
         </div>
       </div>
