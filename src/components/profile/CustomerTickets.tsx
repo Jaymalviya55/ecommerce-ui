@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
-import { MessagesSquare, Plus, Send, X, Clock } from 'lucide-react';
+import { MessagesSquare, Plus, Send, X, Clock, Paperclip, Loader2, Image as ImageIcon } from 'lucide-react';
 import { API_URL } from '../../config';
 import axiosClient from '../../api/axiosClient';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
@@ -11,6 +11,7 @@ interface TicketMessage {
   id: number;
   senderEmail: string;
   message: string;
+  attachmentUrl?: string;
   isStaff: boolean;
   createdAt: string;
 }
@@ -41,6 +42,8 @@ export const CustomerTickets = () => {
 
   // Reply
   const [replyMessage, setReplyMessage] = useState('');
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -163,20 +166,43 @@ export const CustomerTickets = () => {
   };
 
   const handleReply = async () => {
-    if (!replyMessage.trim() || !selectedTicket) return;
+    if ((!replyMessage.trim() && !attachmentFile) || !selectedTicket) return;
+
+    setIsUploading(true);
+    let uploadedUrl = null;
 
     try {
+      if (attachmentFile) {
+        const formData = new FormData();
+        formData.append('file', attachmentFile);
+        formData.append('upload_preset', 'ECommerce');
+
+        const response = await fetch('https://api.cloudinary.com/v1_1/pyuea7od/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Upload failed');
+        const data = await response.json();
+        uploadedUrl = data.secure_url;
+      }
+
       await axiosClient.post(`/tickets/${selectedTicket.id}/reply`, {
-        message: replyMessage
+        message: replyMessage,
+        attachmentUrl: uploadedUrl
       });
       
       setReplyMessage('');
+      setAttachmentFile(null);
       if (connection) {
          connection.invoke("Typing", selectedTicket.id.toString(), false).catch(console.error);
       }
       // No need to fetchTicketDetails(selectedTicket.id) here, SignalR will append the message
     } catch (err) {
       console.error(err);
+      toast.error("Failed to send message.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -282,7 +308,14 @@ export const CustomerTickets = () => {
                     <span className={`text-xs font-semibold ${!isStaff ? 'text-indigo-200' : 'text-emerald-600 dark:text-emerald-400'}`}>{!isStaff ? 'You' : 'Support Team'}</span>
                     <span className={`text-[10px] ml-4 ${!isStaff ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                  {msg.attachmentUrl && (
+                    <div className="mb-2 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 mt-1">
+                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer">
+                        <img src={msg.attachmentUrl} alt="Attachment" className="max-w-full h-auto max-h-[200px] object-cover hover:opacity-90 transition-opacity cursor-pointer" />
+                      </a>
+                    </div>
+                  )}
+                  {msg.message && <p className="text-sm whitespace-pre-wrap">{msg.message}</p>}
                 </div>
               </div>
             )
@@ -302,7 +335,14 @@ export const CustomerTickets = () => {
 
         {/* Reply input */}
         {selectedTicket.status !== 'Resolved' && selectedTicket.status !== 'Closed' && (
-          <div className="p-4 bg-white dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700/50">
+          <div className="p-4 bg-white dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700/50 flex flex-col gap-2">
+            {attachmentFile && (
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 rounded-lg p-2 text-sm w-max border border-slate-200 dark:border-slate-700">
+                <ImageIcon size={16} className="text-primary"/>
+                <span className="text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{attachmentFile.name}</span>
+                <button onClick={() => setAttachmentFile(null)} className="text-slate-400 hover:text-rose-500"><X size={16}/></button>
+              </div>
+            )}
             <div className="flex items-end gap-3">
               <textarea 
                 value={replyMessage}
@@ -310,13 +350,19 @@ export const CustomerTickets = () => {
                 placeholder="Type your reply..."
                 className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none resize-none min-h-[60px]"
               />
-              <button 
-                onClick={handleReply}
-                disabled={!replyMessage.trim()}
-                className="h-[60px] px-6 bg-primary hover:bg-primary-dark text-white rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors"
-              >
-                <Send size={18} />
-              </button>
+              <div className="flex gap-2">
+                <label className="h-[60px] px-4 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 rounded-xl flex items-center justify-center transition-colors cursor-pointer">
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)} />
+                  <Paperclip size={18} />
+                </label>
+                <button 
+                  onClick={handleReply}
+                  disabled={(!replyMessage.trim() && !attachmentFile) || isUploading}
+                  className="h-[60px] w-[60px] bg-primary hover:bg-primary-dark text-white rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors"
+                >
+                  {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                </button>
+              </div>
             </div>
           </div>
         )}
