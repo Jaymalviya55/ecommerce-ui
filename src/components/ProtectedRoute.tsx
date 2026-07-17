@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 
 interface ProtectedRouteProps {
@@ -8,9 +9,13 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ onShowLogin }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAuthStore();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      onShowLogin();
+    }
+  }, [isAuthenticated, onShowLogin]);
+
   if (!isAuthenticated) {
-    // Optionally trigger the login modal when redirecting
-    onShowLogin();
     return <Navigate to="/" replace />;
   }
 

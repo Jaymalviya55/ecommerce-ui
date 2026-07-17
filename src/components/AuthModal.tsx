@@ -4,6 +4,7 @@ import axiosClient from '../api/axiosClient';
 import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -29,10 +30,11 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         setTokens(response.data.accessToken, response.data.refreshToken);
         setUser(email);
         onClose();
+        toast.success(`Welcome back!`);
       } else {
         await axiosClient.post('/auth/register', { email, password });
         setIsLogin(true);
-        setError('Registration successful! Please log in.');
+        toast.success('Registration successful! Please log in.');
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {

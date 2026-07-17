@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
+import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, MessagesSquare } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useOrderStore } from '../store/useOrderStore';
-import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, MessagesSquare } from 'lucide-react';
 import { CustomerTickets } from '../components/profile/CustomerTickets';
-import { API_URL } from '../config';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
+import axiosClient from '../api/axiosClient';
+import toast from 'react-hot-toast';
 
 export const Profile = () => {
   const { userEmail, isAdmin, roles } = useAuthStore();
   const { myOrders, isLoading, error, fetchMyOrders } = useOrderStore();
   const [activeTab, setActiveTab] = useState<'account' | 'orders' | 'support'>('account');
+  const [orderToCancel, setOrderToCancel] = useState<number | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -16,22 +20,20 @@ export const Profile = () => {
     }
   }, [activeTab, fetchMyOrders]);
 
-  const handleCancelOrder = async (orderId: number) => {
-    if(!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) return;
+  const confirmCancelOrder = async () => {
+    if (!orderToCancel) return;
+    setIsCancelling(true);
     
     try {
-      const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${useAuthStore.getState().accessToken}` }
-      });
-      if(res.ok) {
-        fetchMyOrders();
-      } else {
-        const text = await res.text();
-        alert(`Could not cancel: ${text}`);
-      }
-    } catch (e) {
-      alert("Network error.");
+      await axiosClient.put(`/orders/${orderToCancel}/cancel`);
+      
+      toast.success("Order cancelled successfully");
+      fetchMyOrders();
+    } catch (e: any) {
+      toast.error(`Could not cancel: ${e.response?.data || "Network error"}`);
+    } finally {
+      setIsCancelling(false);
+      setOrderToCancel(null);
     }
   };
 
@@ -227,7 +229,7 @@ export const Profile = () => {
                         {(order.status === 'Pending' || order.status === 'Paid') && (
                           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700/50 flex justify-end">
                             <button 
-                              onClick={() => handleCancelOrder(order.id)}
+                              onClick={() => setOrderToCancel(order.id)}
                               className="px-4 py-2 text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded-lg transition-colors flex items-center gap-2"
                             >
                               <AlertCircle size={16} /> Cancel Order
@@ -247,6 +249,17 @@ export const Profile = () => {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!orderToCancel}
+        onClose={() => !isCancelling && setOrderToCancel(null)}
+        onConfirm={confirmCancelOrder}
+        title="Cancel Order"
+        message="Are you sure you want to cancel this order? This action cannot be undone."
+        confirmText="Cancel Order"
+        type="danger"
+        isLoading={isCancelling}
+      />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { MessagesSquare, Plus, Send, X, Clock } from 'lucide-react';
 import { API_URL } from '../../config';
 import axiosClient from '../../api/axiosClient';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import toast from 'react-hot-toast';
 
 interface TicketMessage {
   id: number;
@@ -138,8 +139,10 @@ export const CustomerTickets = () => {
       setNewMessage('');
       setNewOrderId('');
       fetchTickets();
+      toast.success("Support ticket created!");
     } catch (err) {
       console.error(err);
+      toast.error("Failed to create ticket.");
     }
   };
 

@@ -26,6 +26,7 @@ import { Analytics } from '@vercel/analytics/react'
 // Cleaned up unused lucide icons
 import { motion, AnimatePresence } from 'framer-motion'
 import { SupportRoute } from './components/SupportRoute'
+import { ToastProvider } from './components/ui/ToastProvider'
 // Search is imported from pages
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 selection:bg-primary selection:text-white transition-colors duration-300">
+      <ToastProvider />
       <CartSidebar />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
