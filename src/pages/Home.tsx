@@ -12,11 +12,6 @@ export const Home = () => {
         fetchProducts();
     }, [fetchProducts]);
 
-    const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
-    if (isWarehouseOnly) {
-        return <Navigate to="/fulfillment" replace />;
-    }
-
     const categoriesMap = useMemo(() => {
         const map = new Map<string, any[]>();
         products.forEach(product => {
@@ -28,6 +23,11 @@ export const Home = () => {
         });
         return map;
     }, [products]);
+
+    const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
+    if (isWarehouseOnly) {
+        return <Navigate to="/fulfillment" replace />;
+    }
 
     if (isLoading) return (
         <div className="py-16 max-w-[1750px] w-full mx-auto px-4 sm:px-8 xl:px-16">

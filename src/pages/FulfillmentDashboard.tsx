@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Package, Truck } from 'lucide-react';
 import { API_URL } from '../config';
+import toast from 'react-hot-toast';
 
 interface OrderItem {
   productId: number;
@@ -62,7 +63,7 @@ export const FulfillmentDashboard = () => {
   const handleShipOrder = async (orderId: number) => {
     const data = trackingData[orderId];
     if (!data?.carrier || !data?.tracking) {
-      alert("Please enter both Carrier and Tracking Number.");
+      toast.error("Please enter both Carrier and Tracking Number.");
       return;
     }
 
@@ -81,15 +82,15 @@ export const FulfillmentDashboard = () => {
       });
 
       if (response.ok) {
-        // Remove from list
+        toast.success(`Order #${orderId} marked as shipped!`);
         setOrders(orders.filter(o => o.id !== orderId));
       } else {
         const err = await response.text();
-        alert(`Failed to ship: ${err}`);
+        toast.error(`Failed to ship: ${err}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Network error.");
+      toast.error("Network error.");
     } finally {
       setProcessingId(null);
     }
