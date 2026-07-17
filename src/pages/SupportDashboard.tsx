@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { MessagesSquare, Send, CheckCircle, Clock } from 'lucide-react';
+import { MessagesSquare, Send, CheckCircle, Clock, Paperclip, Loader2, Image as ImageIcon, X } from 'lucide-react';
 import { API_URL } from '../config';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import axiosClient from '../api/axiosClient';
@@ -9,6 +9,8 @@ interface TicketMessage {
   id: number;
   senderEmail: string;
   message: string;
+  attachmentUrl?: string;
+  isInternalNote: boolean;
   isStaff: boolean;
   createdAt: string;
 }
@@ -19,6 +21,8 @@ interface SupportTicket {
   subject: string;
   status: string;
   priority: string;
+  assignedToEmail?: string;
+  createdAt: string;
   updatedAt: string;
   messages?: TicketMessage[];
 }
@@ -29,6 +33,9 @@ export const SupportDashboard = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isInternalNote, setIsInternalNote] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('Open');
 
@@ -135,20 +142,43 @@ export const SupportDashboard = () => {
   };
 
   const handleReply = async () => {
-    if (!replyMessage.trim() || !selectedTicketId) return;
+    if ((!replyMessage.trim() && !attachmentFile) || !selectedTicketId) return;
+
+    setIsUploading(true);
+    let uploadedUrl = null;
 
     try {
+      if (attachmentFile) {
+        const formData = new FormData();
+        formData.append('file', attachmentFile);
+        formData.append('upload_preset', 'ECommerce');
+
+        const response = await fetch('https://api.cloudinary.com/v1_1/pyuea7od/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Upload failed');
+        const data = await response.json();
+        uploadedUrl = data.secure_url;
+      }
+
       await axiosClient.post(`/tickets/${selectedTicketId}/reply`, {
-        message: replyMessage
+        message: replyMessage,
+        attachmentUrl: uploadedUrl,
+        isInternalNote: isInternalNote
       });
       
       setReplyMessage('');
+      setAttachmentFile(null);
+      setIsInternalNote(false);
       if (connection) {
          connection.invoke("Typing", selectedTicketId.toString(), false).catch(console.error);
       }
-      // SignalR handles appending the new message dynamically
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -158,6 +188,17 @@ export const SupportDashboard = () => {
       await axiosClient.put(`/tickets/${selectedTicketId}/resolve`);
       
       setSelectedTicketId(null);
+      fetchTickets();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleClaim = async () => {
+    if (!selectedTicketId) return;
+    try {
+      const response = await axiosClient.put(`/tickets/${selectedTicketId}/claim`);
+      setSelectedTicket(response.data);
       fetchTickets();
     } catch (err) {
       console.error(err);
@@ -233,17 +274,34 @@ export const SupportDashboard = () => {
               {/* Header */}
               <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">{selectedTicket.subject}</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-lg">{selectedTicket.subject}</h3>
+                    {selectedTicket.assignedToEmail && (
+                      <span className="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-1 rounded-md font-medium border border-indigo-200 dark:border-indigo-800">
+                        Assigned to: {selectedTicket.assignedToEmail}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-slate-500">From: {selectedTicket.customerEmail}</p>
                 </div>
-                {selectedTicket.status !== 'Resolved' && (
-                  <button 
-                    onClick={handleResolve}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 rounded-lg text-sm font-semibold transition-colors"
-                  >
-                    <CheckCircle size={16} /> Mark Resolved
-                  </button>
-                )}
+                <div className="flex gap-2">
+                  {!selectedTicket.assignedToEmail && selectedTicket.status !== 'Resolved' && (
+                    <button 
+                      onClick={handleClaim}
+                      className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Assign to Me
+                    </button>
+                  )}
+                  {selectedTicket.status !== 'Resolved' && (
+                    <button 
+                      onClick={handleResolve}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <CheckCircle size={16} /> Mark Resolved
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Messages */}
@@ -251,13 +309,21 @@ export const SupportDashboard = () => {
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 dark:bg-slate-900/20">
               {selectedTicket.messages?.map(msg => {
                 const isStaff = msg.isStaff;
+                const isInternal = msg.isInternalNote;
                 return (
                   <div key={msg.id} className={`flex ${isStaff ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[70%] rounded-2xl px-5 py-3 ${isStaff ? 'bg-primary text-white rounded-br-none shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
+                    <div className={`max-w-[70%] rounded-2xl px-5 py-3 ${isInternal ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200 border border-amber-200 dark:border-amber-700/50 shadow-sm' : isStaff ? 'bg-indigo-600 text-white rounded-br-none shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
                       <div className="flex justify-between items-baseline mb-1">
-                        <span className={`text-xs font-semibold ${isStaff ? 'text-indigo-200' : 'text-slate-600 dark:text-slate-400'}`}>{isStaff ? 'You' : msg.senderEmail}</span>
-                        <span className={`text-[10px] ml-4 ${isStaff ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span className={`text-xs font-semibold ${isInternal ? 'text-amber-700 dark:text-amber-400' : isStaff ? 'text-indigo-200' : 'text-slate-600 dark:text-slate-400'}`}>{isInternal ? 'Private Note (Only Staff)' : isStaff ? 'You' : msg.senderEmail}</span>
+                        <span className={`text-[10px] ml-4 ${isInternal ? 'text-amber-600 dark:text-amber-500' : isStaff ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                       </div>
+                      {msg.attachmentUrl && (
+                        <div className="mb-2 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 mt-1">
+                          <a href={msg.attachmentUrl} target="_blank" rel="noreferrer">
+                            <img src={msg.attachmentUrl} alt="Attachment" className="max-w-full h-auto max-h-[200px] object-cover hover:opacity-90 transition-opacity cursor-pointer" />
+                          </a>
+                        </div>
+                      )}
                       <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                     </div>
                   </div>
@@ -278,21 +344,45 @@ export const SupportDashboard = () => {
 
             {/* Reply Input */}
             {selectedTicket.status !== 'Resolved' && selectedTicket.status !== 'Closed' && (
-              <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+              <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+                {attachmentFile && (
+                  <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 rounded-lg p-2 text-sm w-max border border-slate-200 dark:border-slate-700">
+                    <ImageIcon size={16} className="text-indigo-500"/>
+                    <span className="text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{attachmentFile.name}</span>
+                    <button onClick={() => setAttachmentFile(null)} className="text-slate-400 hover:text-rose-500"><X size={16}/></button>
+                  </div>
+                )}
                 <div className="flex items-end gap-3">
-                  <textarea 
-                    value={replyMessage}
-                    onChange={handleTyping}
-                    placeholder="Type your reply to customer..."
-                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none min-h-[80px]"
-                  />
-                  <button 
-                    onClick={handleReply}
-                    disabled={!replyMessage.trim()}
-                    className="h-[80px] px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors"
-                  >
-                    <Send size={20} />
-                  </button>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <textarea 
+                      value={replyMessage}
+                      onChange={handleTyping}
+                      placeholder={isInternalNote ? "Type a private internal note..." : "Type your reply to customer..."}
+                      className={`w-full border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none min-h-[80px] transition-colors ${isInternalNote ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/50' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'}`}
+                    />
+                    <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 w-max cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={isInternalNote} 
+                        onChange={(e) => setIsInternalNote(e.target.checked)} 
+                        className="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                      />
+                      Add as Private Internal Note (Customer will not see this)
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <label className="h-[80px] px-4 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl flex items-center justify-center transition-colors cursor-pointer">
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)} />
+                      <Paperclip size={20} />
+                    </label>
+                    <button 
+                      onClick={handleReply}
+                      disabled={(!replyMessage.trim() && !attachmentFile) || isUploading}
+                      className="h-[80px] w-[80px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center disabled:opacity-50 transition-colors"
+                    >
+                      {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
