@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package, MessagesSquare } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package, MessagesSquare, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useThemeStore } from '../../store/useThemeStore';
-import { useSearchParams } from 'react-router-dom';
 
 interface NavbarProps {
   onOpenAuthModal: () => void;
@@ -129,12 +128,20 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                   </li>
                 )}
                 {(isAdmin || roles.includes('SupportAgent')) && (
-                  <li>
-                    <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
-                      <MessagesSquare size={14} />
-                      <span>Support Desk</span>
-                    </Link>
-                  </li>
+                  <>
+                    <li>
+                      <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
+                        <MessagesSquare size={14} />
+                        <span>Support Desk</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/support/analytics" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
+                        <BarChart3 size={14} />
+                        <span>Analytics</span>
+                      </Link>
+                    </li>
+                  </>
                 )}
               </ul>
             </nav>
@@ -256,12 +263,20 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                     </Link>
                   )}
                   {(roles.includes('SupportAgent') || isAdmin) && (
-                    <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
-                      <div className="flex items-center space-x-2">
-                        <MessagesSquare size={18} />
-                        <span>Support Desk</span>
-                      </div>
-                    </Link>
+                    <>
+                      <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
+                        <div className="flex items-center space-x-2">
+                          <MessagesSquare size={18} />
+                          <span>Support Desk</span>
+                        </div>
+                      </Link>
+                      <Link to="/support/analytics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
+                        <div className="flex items-center space-x-2">
+                          <BarChart3 size={18} />
+                          <span>Support Analytics</span>
+                        </div>
+                      </Link>
+                    </>
                   )}
                 </nav>
                 
