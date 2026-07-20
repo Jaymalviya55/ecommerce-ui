@@ -6,6 +6,7 @@ import { API_URL } from '../../config';
 import axiosClient from '../../api/axiosClient';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import toast from 'react-hot-toast';
+import React from 'react';
 
 interface TicketMessage {
   id: number;
@@ -22,6 +23,7 @@ interface SupportTicket {
   status: string;
   priority: string;
   updatedAt: string;
+  isHumanRequested?: boolean;
   messages?: TicketMessage[];
 }
 
@@ -115,6 +117,22 @@ export const CustomerTickets = () => {
       }
     };
   }, [selectedTicket?.id, accessToken]);
+
+  const handleEscalate = async (ticketId: number) => {
+    try {
+      setIsUploading(true);
+      await axiosClient.put(`/tickets/${ticketId}/escalate`);
+      toast.success("Connecting to a Customer Executive...");
+      setSelectedTicket(prev => prev ? { ...prev, isHumanRequested: true } : prev);
+      
+      // Update in tickets list
+      setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, isHumanRequested: true } : t));
+    } catch (err) {
+      toast.error("Failed to connect to agent.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const fetchTicketDetails = async (id: number) => {
     try {
@@ -301,24 +319,46 @@ export const CustomerTickets = () => {
         <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/20">
           {selectedTicket.messages?.map(msg => {
             const isStaff = msg.isStaff;
+            const isEscalateMsg = msg.message.includes("[ESCALATE_TO_HUMAN]");
+            const displayText = msg.message.replace("[ESCALATE_TO_HUMAN]", "").trim();
+            
             return (
-              <div key={msg.id} className={`flex ${!isStaff ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[70%] rounded-2xl px-5 py-3 ${!isStaff ? 'bg-primary text-white rounded-br-none shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <span className={`text-xs font-semibold ${!isStaff ? 'text-indigo-200' : 'text-emerald-600 dark:text-emerald-400'}`}>{!isStaff ? 'You' : 'Support Team'}</span>
-                    <span className={`text-[10px] ml-4 ${!isStaff ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                  </div>
-                  {msg.attachmentUrl && (
-                    <div className="mb-2 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 mt-1">
-                      <a href={msg.attachmentUrl} target="_blank" rel="noreferrer">
-                        <img src={msg.attachmentUrl} alt="Attachment" className="max-w-full h-auto max-h-[200px] object-cover hover:opacity-90 transition-opacity cursor-pointer" />
-                      </a>
+              <React.Fragment key={msg.id}>
+                {displayText && (
+                  <div className={`flex ${!isStaff ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[70%] rounded-2xl px-5 py-3 ${!isStaff ? 'bg-primary text-white rounded-br-none shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className={`text-xs font-semibold ${!isStaff ? 'text-indigo-200' : 'text-emerald-600 dark:text-emerald-400'}`}>{!isStaff ? 'You' : 'Support Team'}</span>
+                        <span className={`text-[10px] ml-4 ${!isStaff ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                      </div>
+                      {msg.attachmentUrl && (
+                        <div className="mb-2 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 mt-1">
+                          <a href={msg.attachmentUrl} target="_blank" rel="noreferrer">
+                            <img src={msg.attachmentUrl} alt="Attachment" className="max-w-full h-auto max-h-[200px] object-cover hover:opacity-90 transition-opacity cursor-pointer" />
+                          </a>
+                        </div>
+                      )}
+                      <p className="text-sm whitespace-pre-wrap">{displayText}</p>
                     </div>
-                  )}
-                  {msg.message && <p className="text-sm whitespace-pre-wrap">{msg.message}</p>}
-                </div>
-              </div>
-            )
+                  </div>
+                )}
+                
+                {isEscalateMsg && !selectedTicket.isHumanRequested && (
+                  <div className="flex justify-center my-4">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm text-center">
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">I seem to have reached the limit of my capabilities. Would you like to speak with a human agent?</p>
+                      <button 
+                        onClick={() => handleEscalate(selectedTicket.id)}
+                        disabled={isUploading}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                      >
+                        Connect to Customer Executive
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
           })}
           
           {isTyping && (

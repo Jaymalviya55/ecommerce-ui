@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { MessagesSquare, Send, CheckCircle, Clock, Paperclip, Loader2, Image as ImageIcon, X } from 'lucide-react';
+import { MessagesSquare, Send, CheckCircle, Clock, Paperclip, Loader2, Image as ImageIcon, X, Sparkles } from 'lucide-react';
 import { API_URL } from '../config';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import axiosClient from '../api/axiosClient';
@@ -22,6 +22,7 @@ interface SupportTicket {
   status: string;
   priority: string;
   assignedToEmail?: string;
+  isHumanRequested?: boolean;
   createdAt: string;
   updatedAt: string;
   messages?: TicketMessage[];
@@ -37,6 +38,7 @@ export const SupportDashboard = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isInternalNote, setIsInternalNote] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDrafting, setIsDrafting] = useState(false);
   const [filter, setFilter] = useState('Open');
 
   const fetchTickets = async () => {
@@ -124,6 +126,20 @@ export const SupportDashboard = () => {
       }
     };
   }, [selectedTicketId, accessToken]);
+
+  const handleDraftReply = async () => {
+    if (!selectedTicketId) return;
+    try {
+      setIsDrafting(true);
+      const response = await axiosClient.get(`/tickets/${selectedTicketId}/draft-reply`);
+      setReplyMessage(response.data.draft);
+      setIsInternalNote(false); // Ensure it defaults to customer-facing when drafting
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDrafting(false);
+    }
+  };
 
   const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReplyMessage(e.target.value);
@@ -255,7 +271,10 @@ export const SupportDashboard = () => {
                     className={`w-full text-left p-4 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${selectedTicketId === ticket.id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500' : 'border-l-4 border-transparent'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase">#{ticket.id}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-500 uppercase">#{ticket.id}</span>
+                        {ticket.isHumanRequested && <span className="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full font-bold">Escalated</span>}
+                      </div>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
                     </div>
                     <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1 truncate">{ticket.subject}</h4>
@@ -308,6 +327,11 @@ export const SupportDashboard = () => {
               {/* Chat Thread */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 dark:bg-slate-900/20">
               {selectedTicket.messages?.map(msg => {
+                const isEscalateMsg = msg.message.includes("[ESCALATE_TO_HUMAN]");
+                const displayText = msg.message.replace("[ESCALATE_TO_HUMAN]", "").trim();
+                
+                if (!displayText && isEscalateMsg) return null;
+                
                 const isStaff = msg.isStaff;
                 const isInternal = msg.isInternalNote;
                 return (
@@ -324,7 +348,7 @@ export const SupportDashboard = () => {
                           </a>
                         </div>
                       )}
-                      <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                      <p className="text-sm whitespace-pre-wrap">{displayText}</p>
                     </div>
                   </div>
                 )
@@ -371,6 +395,14 @@ export const SupportDashboard = () => {
                     </label>
                   </div>
                   <div className="flex gap-2">
+                    <button 
+                      onClick={handleDraftReply}
+                      disabled={isUploading || isDrafting}
+                      className="h-[80px] px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 rounded-xl flex flex-col items-center justify-center transition-colors shadow-sm disabled:opacity-50"
+                    >
+                      {isDrafting ? <Loader2 size={20} className="animate-spin mb-1" /> : <Sparkles size={20} className="mb-1" />}
+                      <span className="text-xs font-bold">Draft AI Reply</span>
+                    </button>
                     <label className="h-[80px] px-4 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl flex items-center justify-center transition-colors cursor-pointer">
                       <input type="file" className="hidden" accept="image/*" onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)} />
                       <Paperclip size={20} />
