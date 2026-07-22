@@ -50,13 +50,15 @@ export const CategoryStack = ({ categoryName, products }: CategoryStackProps) =>
                             variants={{
                                 initial: { 
                                     x: defaultX, 
+                                    y: defaultX * 0.2,
                                     scale: defaultScale,
                                     rotate: 0
                                 },
                                 hover: { 
                                     x: hoverX, 
+                                    y: -hoverX * 0.15,
                                     scale: defaultScale,
-                                    rotate: 0 
+                                    rotate: (index + 1) * 3 
                                 }
                             }}
                             transition={{ type: "spring", stiffness: 350, damping: 25 }}

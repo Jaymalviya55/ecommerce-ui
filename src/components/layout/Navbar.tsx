@@ -75,7 +75,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
       {/* 
         We use glassmorphism backgrounds for both themes. 
       */}
-      <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white/80 dark:bg-slate-800/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 shadow-md shadow-slate-200/50 dark:shadow-none transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl saturate-150 border-b border-slate-200/50 dark:border-slate-700/30 shadow-sm transition-all duration-300">
         
         {/* Top Row: Logo, Desktop Search, Actions */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
