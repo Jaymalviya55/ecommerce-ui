@@ -4,6 +4,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import { CategoryStack } from '../components/CategoryStack';
 import { Navigate } from 'react-router-dom';
 
+import { HeroCarousel } from '../components/home/HeroCarousel';
+
 export const Home = () => {
     const { products, isLoading, error, fetchProducts } = useProductStore();
     const { roles, isAdmin } = useAuthStore();
@@ -50,8 +52,10 @@ export const Home = () => {
     );
 
     return (
-        <div className="py-16 max-w-[1750px] w-full mx-auto px-4 sm:px-8 xl:px-16">
-            <div className="mb-20 text-center">
+        <div className="pt-4 pb-16 max-w-[1750px] w-full mx-auto px-4 sm:px-8 xl:px-16">
+            <HeroCarousel />
+            
+            <div className="mb-16 mt-8 text-center">
                 <h2 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">Shop by Category</h2>
                 <p className="text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">Explore our premium collections through interactive stacks.</p>
             </div>

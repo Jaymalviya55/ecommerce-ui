@@ -37,7 +37,7 @@ export const CustomerTickets = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [newMessage, setNewMessage] = useState('');
-  const [newPriority, setNewPriority] = useState<number>(1);
+
   const [newOrderId, setNewOrderId] = useState<string>('');
 
   const { myOrders, fetchMyOrders } = useOrderStore();
@@ -151,7 +151,6 @@ export const CustomerTickets = () => {
       await axiosClient.post('/tickets', {
         subject: newSubject,
         message: newMessage,
-        priority: newPriority,
         orderId: newOrderId ? parseInt(newOrderId) : null
       });
 
@@ -224,14 +223,7 @@ export const CustomerTickets = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch(priority) {
-      case 'Urgent': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
-      case 'High': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'Medium': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      default: return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
-    }
-  };
+
 
   if (isCreating) {
     return (
@@ -251,19 +243,6 @@ export const CustomerTickets = () => {
               className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" 
               placeholder="e.g. My order arrived damaged"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Priority</label>
-            <select 
-              value={newPriority}
-              onChange={(e) => setNewPriority(parseInt(e.target.value))}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
-            >
-              <option value={0}>Low - General Question</option>
-              <option value={1}>Medium - Order Issue</option>
-              <option value={2}>High - Damaged/Missing Item</option>
-              <option value={3}>Urgent - Payment Issue</option>
-            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Related Order (Optional)</label>
@@ -310,7 +289,6 @@ export const CustomerTickets = () => {
             <h3 className="font-bold text-slate-900 dark:text-white text-lg">{selectedTicket.subject}</h3>
           </div>
           <div className="flex gap-2">
-            <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${getPriorityColor(selectedTicket.priority)}`}>{selectedTicket.priority}</span>
             <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">{selectedTicket.status}</span>
           </div>
         </div>
@@ -324,7 +302,7 @@ export const CustomerTickets = () => {
             
             return (
               <React.Fragment key={msg.id}>
-                {displayText && (
+                {(displayText || msg.attachmentUrl) && (
                   <div className={`flex ${!isStaff ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] rounded-2xl px-5 py-3 ${!isStaff ? 'bg-primary text-white rounded-br-none shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
                       <div className="flex justify-between items-baseline mb-1">
@@ -338,7 +316,7 @@ export const CustomerTickets = () => {
                           </a>
                         </div>
                       )}
-                      <p className="text-sm whitespace-pre-wrap">{displayText}</p>
+                      {displayText && <p className="text-sm whitespace-pre-wrap">{displayText}</p>}
                     </div>
                   </div>
                 )}
@@ -443,7 +421,6 @@ export const CustomerTickets = () => {
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{ticket.subject}</h4>
                 <div className="flex gap-2">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">{ticket.status}</span>
                 </div>
               </div>
