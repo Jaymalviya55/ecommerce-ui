@@ -55,7 +55,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md" 
+            className="fixed inset-0 bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-xl" 
             onClick={onClose}
           />
 
@@ -64,7 +64,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl dark:shadow-2xl rounded-3xl overflow-hidden"
+            className="relative w-full max-w-md bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-3xl overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-indigo-400"></div>
             

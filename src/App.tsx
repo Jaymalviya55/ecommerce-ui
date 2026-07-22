@@ -52,12 +52,14 @@ function App() {
         } else {
           try {
             const parsed = JSON.parse(e.newValue)
-            if (!parsed.state?.isAuthenticated) {
+            if (typeof parsed !== 'object' || parsed === null || !parsed.state?.isAuthenticated) {
               logout()
               window.location.href = '/'
             }
           } catch (error) {
-            console.error("Failed to parse auth storage sync", error)
+            console.error("Failed to parse auth storage sync, enforcing logout for safety", error)
+            logout()
+            window.location.href = '/'
           }
         }
       }
@@ -113,9 +115,6 @@ function App() {
                 
                 <Route element={<FulfillmentRoute />}>
                   <Route path="/fulfillment" element={<FulfillmentDashboard />} />
-                </Route>
-                <Route element={<SupportRoute />}>
-                  <Route path="/support" element={<SupportDashboard />} />
                 </Route>
               </Routes>
             </Suspense>
