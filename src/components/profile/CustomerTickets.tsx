@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
+
 import { useOrderStore } from '../../store/useOrderStore';
 import { MessagesSquare, Plus, Send, X, Clock, Paperclip, Loader2, Image as ImageIcon } from 'lucide-react';
 import { API_URL } from '../../config';
@@ -28,7 +28,7 @@ interface SupportTicket {
 }
 
 export const CustomerTickets = () => {
-  const { accessToken } = useAuthStore();
+  // No auth variables needed for tickets
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
@@ -66,14 +66,14 @@ export const CustomerTickets = () => {
   useEffect(() => {
     fetchTickets();
     fetchMyOrders();
-  }, [accessToken, fetchMyOrders]);
+  }, [fetchMyOrders]);
 
   useEffect(() => {
-    if (!accessToken || !selectedTicket?.id) return;
+    if (!selectedTicket?.id) return;
 
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${API_URL.replace('/api', '')}/hubs/chat`, {
-        accessTokenFactory: () => accessToken
+        withCredentials: true
       })
       .withAutomaticReconnect()
       .build();
@@ -116,7 +116,7 @@ export const CustomerTickets = () => {
           .finally(() => newConnection.stop());
       }
     };
-  }, [selectedTicket?.id, accessToken]);
+  }, [selectedTicket?.id]);
 
   const handleEscalate = async (ticketId: number) => {
     try {

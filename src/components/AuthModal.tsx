@@ -18,7 +18,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setTokens, setUser } = useAuthStore();
+  const { setAuthData } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +28,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     try {
       if (isLogin) {
         const response = await axiosClient.post('/auth/login', { email, password });
-        setTokens(response.data.accessToken, response.data.refreshToken);
-        setUser(email);
+        setAuthData(response.data.user);
         onClose();
         toast.success(`Welcome back!`);
       } else {
@@ -53,11 +52,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       setError('');
       setIsLoading(true);
       const res = await axiosClient.post('/auth/google-login', { idToken: credentialResponse.credential });
-      setTokens(res.data.accessToken, res.data.refreshToken);
-      
-      // Basic decoding of the payload part of the JWT to extract the email
-      const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-      setUser(payload.email || 'Google User');
+      setAuthData(res.data.user);
       
       onClose();
       toast.success('Successfully logged in with Google!');

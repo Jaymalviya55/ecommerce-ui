@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useThemeStore } from '../../store/useThemeStore';
+import axiosClient from '../../api/axiosClient';
 
 interface NavbarProps {
   onOpenAuthModal: () => void;
@@ -58,6 +59,15 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
 
   const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
   
+  const handleLogout = async () => {
+    try {
+      await axiosClient.post('/auth/logout');
+    } catch (e) {
+      console.error('Logout failed', e);
+    }
+    logout();
+  };
+
   const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const handleSearch = (query: string) => {
@@ -165,7 +175,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                     </div>
                     <span className="max-w-[100px] truncate text-sm font-medium text-slate-700 dark:text-slate-200 hidden md:block">{userEmail?.split('@')[0]}</span>
                   </Link>
-                  <button onClick={logout} className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-2 rounded-full hover:bg-rose-50 dark:hover:bg-rose-400/10" title="Logout">
+                  <button onClick={handleLogout} className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-2 rounded-full hover:bg-rose-50 dark:hover:bg-rose-400/10" title="Logout">
                     <LogOut size={18} />
                   </button>
                 </div>
@@ -284,7 +294,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                   {isAuthenticated ? (
                     <div className="space-y-2">
                       <Link to="/profile" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Your Profile & Orders</Link>
-                      <button onClick={() => { logout(); closeMobileMenu(); }} className="w-full text-left px-4 py-3 text-base font-medium text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-2">
+                      <button onClick={() => { handleLogout(); closeMobileMenu(); }} className="w-full text-left px-4 py-3 text-base font-medium text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-2">
                         <LogOut size={18} />
                         <span>Sign Out</span>
                       </button>

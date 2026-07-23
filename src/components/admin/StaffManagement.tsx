@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
+
 import { Shield, ShieldAlert, User, CheckCircle2 } from 'lucide-react';
-import { API_URL } from '../../config';
+import axiosClient from '../../api/axiosClient';
 
 interface SystemUser {
   id: string;
@@ -12,7 +12,7 @@ interface SystemUser {
 const AVAILABLE_ROLES = ["Admin", "Customer", "SupportAgent", "FulfillmentStaff"];
 
 export const StaffManagement = () => {
-  const { accessToken } = useAuthStore();
+  // Removed unused auth state
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -21,12 +21,8 @@ export const StaffManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/users`, {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
-      });
-      if (!res.ok) throw new Error("Failed to fetch users");
-      const data = await res.json();
-      setUsers(data);
+      const res = await axiosClient.get('/auth/users');
+      setUsers(res.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -44,16 +40,7 @@ export const StaffManagement = () => {
     setError('');
     
     try {
-      const res = await fetch(`${API_URL}/auth/assign-role`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, role })
-      });
-      
-      if (!res.ok) throw new Error("Failed to assign role");
+      await axiosClient.post('/auth/assign-role', { email, role });
       
       setSuccessMsg(`Role ${role} successfully assigned to ${email}`);
       await fetchUsers(); // Refresh the list

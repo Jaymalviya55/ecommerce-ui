@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, MessageCircle, Edit2, X, PenLine } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import axiosClient from '../api/axiosClient';
 
 interface Review {
   id: number;
@@ -18,22 +17,13 @@ interface ProductReviewsProps {
   productId: number;
 }
 
-const getApiUrl = () => {
-  let url = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
-  if (url && !url.endsWith('/api')) {
-      url = url.replace(/\/$/, '') + '/api';
-  }
-  return url;
-};
-const API_URL = getApiUrl();
-
 export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   
-  const { isAuthenticated, userId, accessToken } = useAuthStore();
+  const { isAuthenticated, userId } = useAuthStore();
   
   // State for Review Form
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -53,7 +43,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get(`${API_URL}/products/${productId}/reviews`);
+      const res = await axiosClient.get(`/products/${productId}/reviews`);
       setReviews(res.data.reviews);
       setAverageRating(res.data.averageRating);
       setTotalReviews(res.data.totalReviews);
@@ -74,13 +64,12 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     setIsSubmitting(true);
     
     try {
-      const config = { headers: { Authorization: `Bearer ${accessToken}` } };
       const payload = { rating, comment };
       
       if (editingReviewId) {
-        await axios.put(`${API_URL}/products/${productId}/reviews/${editingReviewId}`, payload, config);
+        await axiosClient.put(`/products/${productId}/reviews/${editingReviewId}`, payload);
       } else {
-        await axios.post(`${API_URL}/products/${productId}/reviews`, payload, config);
+        await axiosClient.post(`/products/${productId}/reviews`, payload);
       }
       
       handleCloseForm();
@@ -99,17 +88,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     setIsFormOpen(true);
   };
 
-  let currentUserId = userId;
-  if (!currentUserId && accessToken) {
-    try {
-      const decoded: any = jwtDecode(accessToken);
-      currentUserId = decoded?.uid;
-    } catch (e) {
-      console.error("Failed to decode token for userId");
-    }
-  }
-
-  const userReview = reviews.find(r => r.userId === currentUserId);
+  const userReview = reviews.find(r => r.userId === userId);
 
   return (
     <div className="mt-8 sm:mt-10 bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-xl dark:shadow-2xl mb-8 sm:mb-10">
