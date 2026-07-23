@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { GoogleLogin } from '@react-oauth/google';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       } else {
         await axiosClient.post('/auth/register', { email, password });
         setIsLogin(true);
-        toast.success('Registration successful! Please log in.');
+        toast.success('Registration successful! Please check your email to verify your account.', { duration: 5000 });
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
@@ -42,6 +43,26 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       } else {
         setError('An unexpected error occurred.');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setError('');
+      setIsLoading(true);
+      const res = await axiosClient.post('/auth/google-login', { idToken: credentialResponse.credential });
+      setTokens(res.data.accessToken, res.data.refreshToken);
+      
+      // Basic decoding of the payload part of the JWT to extract the email
+      const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+      setUser(payload.email || 'Google User');
+      
+      onClose();
+      toast.success('Successfully logged in with Google!');
+    } catch (err: any) {
+      setError('Failed to authenticate with backend using Google token.');
     } finally {
       setIsLoading(false);
     }
@@ -156,6 +177,25 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     </>
                   )}
                 </button>
+
+                <div className="mt-6 relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm font-medium">
+                    <span className="px-4 bg-white/90 dark:bg-slate-900/80 text-slate-500">or continue with</span>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-center w-full">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google Login Failed')}
+                    theme="outline"
+                    size="large"
+                    width="100%"
+                  />
+                </div>
               </form>
 
               <div className="mt-8 text-center text-sm font-medium">
