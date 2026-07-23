@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@microsoft/signalr": "^10.0.0",
+    "@react-oauth/google": "^0.13.5",
     "@types/react-simple-maps": "^3.0.6",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

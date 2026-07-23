@@ -13,6 +13,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(module =
 const FulfillmentDashboard = lazy(() => import('./pages/FulfillmentDashboard').then(module => ({ default: module.FulfillmentDashboard })))
 const SupportDashboard = lazy(() => import('./pages/SupportDashboard').then(module => ({ default: module.SupportDashboard })))
 const SupportAnalytics = lazy(() => import('./pages/SupportAnalytics').then(module => ({ default: module.SupportAnalytics })))
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(module => ({ default: module.VerifyEmail })))
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
 import { FulfillmentRoute } from './components/FulfillmentRoute'
@@ -98,6 +99,7 @@ function App() {
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/category/:name" element={<Category />} />
                 <Route path="/search" element={<Search />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 
                 <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
                   <Route path="/profile" element={<Profile />} />
