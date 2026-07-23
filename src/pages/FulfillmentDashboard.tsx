@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Package, Truck } from 'lucide-react';
-import { API_URL } from '../config';
+import axiosClient from '../api/axiosClient';
 import toast from 'react-hot-toast';
 
 interface OrderItem {
@@ -21,7 +21,7 @@ interface Order {
 }
 
 export const FulfillmentDashboard = () => {
-  const { accessToken } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,14 +31,8 @@ export const FulfillmentDashboard = () => {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/orders/fulfillment`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      const data = await response.json();
-      setOrders(data);
+      const response = await axiosClient.get('/orders/fulfillment');
+      setOrders(response.data);
     } catch (err) {
       setError('Error loading fulfillment queue.');
     } finally {
@@ -47,8 +41,8 @@ export const FulfillmentDashboard = () => {
   };
 
   useEffect(() => {
-    if (accessToken) fetchOrders();
-  }, [accessToken]);
+    if (isAuthenticated) fetchOrders();
+  }, [isAuthenticated]);
 
   const handleTrackingChange = (orderId: number, field: 'carrier' | 'tracking', value: string) => {
     setTrackingData(prev => ({
@@ -69,25 +63,13 @@ export const FulfillmentDashboard = () => {
 
     setProcessingId(orderId);
     try {
-      const response = await fetch(`${API_URL}/orders/${orderId}/ship`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          trackingNumber: data.tracking,
-          carrierName: data.carrier
-        })
+      await axiosClient.put(`/orders/${orderId}/ship`, {
+        trackingNumber: data.tracking,
+        carrierName: data.carrier
       });
 
-      if (response.ok) {
         toast.success(`Order #${orderId} marked as shipped!`);
         setOrders(orders.filter(o => o.id !== orderId));
-      } else {
-        const err = await response.text();
-        toast.error(`Failed to ship: ${err}`);
-      }
     } catch (err) {
       console.error(err);
       toast.error("Network error.");

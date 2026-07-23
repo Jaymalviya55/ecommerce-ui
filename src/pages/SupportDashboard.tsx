@@ -29,7 +29,7 @@ interface SupportTicket {
 }
 
 export const SupportDashboard = () => {
-  const { accessToken } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
@@ -64,7 +64,7 @@ export const SupportDashboard = () => {
 
   useEffect(() => {
     fetchTickets();
-  }, [filter, accessToken]);
+  }, [filter, isAuthenticated]);
 
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -79,11 +79,11 @@ export const SupportDashboard = () => {
   }, [selectedTicketId]);
 
   useEffect(() => {
-    if (!accessToken || !selectedTicketId) return;
+    if (!selectedTicketId) return;
 
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${API_URL.replace('/api', '')}/hubs/chat`, {
-        accessTokenFactory: () => accessToken
+        withCredentials: true
       })
       .withAutomaticReconnect()
       .build();
@@ -125,7 +125,7 @@ export const SupportDashboard = () => {
           .finally(() => newConnection.stop());
       }
     };
-  }, [selectedTicketId, accessToken]);
+  }, [selectedTicketId]);
 
   const handleDraftReply = async () => {
     if (!selectedTicketId) return;

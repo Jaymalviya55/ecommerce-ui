@@ -8,32 +8,21 @@ if (API_BASE_URL && !API_BASE_URL.endsWith('/api')) {
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request Interceptor: Attach the access token to every request automatically
-axiosClient.interceptors.request.use(
-  (config) => {
-    const { accessToken } = useAuthStore.getState();
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: any) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve();
     }
   });
   failedQueue = [];
@@ -51,8 +40,7 @@ axiosClient.interceptors.response.use(
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
           failedQueue.push({resolve, reject});
-        }).then(token => {
-          originalRequest.headers.Authorization = 'Bearer ' + token;
+        }).then(() => {
           return axiosClient(originalRequest);
         }).catch(err => {
           return Promise.reject(err);
@@ -63,33 +51,16 @@ axiosClient.interceptors.response.use(
       isRefreshing = true;
       
       try {
-        // Attempt to refresh the token
-        const { accessToken, refreshToken, setTokens, logout } = useAuthStore.getState();
+        // Attempt to refresh the token using cookies
+        await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
         
-        if (!refreshToken) {
-          logout();
-          return Promise.reject(error);
-        }
-
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          accessToken,
-          refreshToken
-        });
-
-        const newAccessToken = response.data.accessToken;
-        const newRefreshToken = response.data.refreshToken;
-        
-        // Save the new tokens in our store
-        setTokens(newAccessToken, newRefreshToken);
-        
-        processQueue(null, newAccessToken);
+        processQueue(null);
         isRefreshing = false;
 
-        // Update the original failed request with the new access token and retry it!
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // Retry the original failed request (cookies will be automatically attached)
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
+        processQueue(refreshError);
         isRefreshing = false;
         // If the refresh token is also expired/invalid, force logout
         useAuthStore.getState().logout();
