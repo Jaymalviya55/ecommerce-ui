@@ -3,7 +3,7 @@ import axios from 'axios';
 import axiosClient from '../api/axiosClient';
 import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -13,28 +13,34 @@ interface AuthModalProps {
 }
 
 export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [view, setView] = useState<'login' | 'register' | 'forgot-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { setAuthData } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setIsLoading(true);
 
     try {
-      if (isLogin) {
+      if (view === 'login') {
         const response = await axiosClient.post('/auth/login', { email, password });
         setAuthData(response.data.user);
         onClose();
         toast.success(`Welcome back!`);
-      } else {
+      } else if (view === 'register') {
         await axiosClient.post('/auth/register', { email, password });
-        setIsLogin(true);
+        setView('login');
         toast.success('Registration successful! Please check your email to verify your account.', { duration: 5000 });
+      } else if (view === 'forgot-password') {
+        const response = await axiosClient.post('/auth/forgot-password', { email });
+        setSuccessMsg(response.data.message || 'Reset link sent!');
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
@@ -88,10 +94,10 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               <div className="flex justify-between items-start mb-8">
                 <div>
                   <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
-                    {isLogin ? 'Welcome Back' : 'Create Account'}
+                    {view === 'login' ? 'Welcome Back' : view === 'register' ? 'Create Account' : 'Reset Password'}
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                    {isLogin ? 'Enter your details to access your account.' : 'Join us for a premium shopping experience.'}
+                    {view === 'login' ? 'Enter your details to access your account.' : view === 'register' ? 'Join us for a premium shopping experience.' : 'Enter your email to receive a reset link.'}
                   </p>
                 </div>
                 <button
@@ -110,14 +116,21 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className={`p-4 rounded-xl text-sm font-medium flex items-center space-x-2 ${
-                        error.includes('successful') 
-                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
-                          : 'bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400'
-                      }`}
+                      className={`p-4 rounded-xl text-sm font-medium flex items-center space-x-2 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400`}
                     >
                       <ShieldCheck size={18} className="flex-shrink-0" />
                       <span>{error}</span>
+                    </motion.div>
+                  )}
+                  {successMsg && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className={`p-4 rounded-xl text-sm font-medium flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400`}
+                    >
+                      <ShieldCheck size={18} className="flex-shrink-0" />
+                      <span>{successMsg}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -139,24 +152,44 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Lock size={18} className="text-slate-400 dark:text-slate-500" />
+                {view !== 'forgot-password' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Lock size={18} className="text-slate-400 dark:text-slate-500" />
+                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        className="block w-full pl-11 pr-12 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
                     </div>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      className="block w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                    {view === 'register' && <p className="text-xs text-slate-500 mt-2 font-medium">Must be at least 8 characters with 1 number.</p>}
+                    {view === 'login' && (
+                      <div className="flex justify-end mt-2">
+                        <button
+                          type="button"
+                          onClick={() => { setView('forgot-password'); setError(''); setSuccessMsg(''); }}
+                          className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  {!isLogin && <p className="text-xs text-slate-500 mt-2 font-medium">Must be at least 8 characters with 1 number.</p>}
-                </div>
+                )}
 
                 <button
                   type="submit"
@@ -167,45 +200,50 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
                     <>
-                      <span>{isLogin ? 'Sign In Securely' : 'Create Account'}</span>
+                      <span>{view === 'login' ? 'Sign In Securely' : view === 'register' ? 'Create Account' : 'Send Reset Link'}</span>
                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </button>
 
-                <div className="mt-6 relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm font-medium">
-                    <span className="px-4 bg-white/90 dark:bg-slate-900/80 text-slate-500">or continue with</span>
-                  </div>
-                </div>
+                {view !== 'forgot-password' && (
+                  <>
+                    <div className="mt-6 relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm font-medium">
+                        <span className="px-4 bg-white/90 dark:bg-slate-900/80 text-slate-500">or continue with</span>
+                      </div>
+                    </div>
 
-                <div className="mt-6 flex justify-center w-full">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError('Google Login Failed')}
-                    theme="outline"
-                    size="large"
-                    width="100%"
-                  />
-                </div>
+                    <div className="mt-6 flex justify-center w-full">
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => setError('Google Login Failed')}
+                        theme="outline"
+                        size="large"
+                        width="100%"
+                      />
+                    </div>
+                  </>
+                )}
               </form>
 
               <div className="mt-8 text-center text-sm font-medium">
                 <span className="text-slate-600 dark:text-slate-500">
-                  {isLogin ? "Don't have an account? " : "Already have an account? "}
+                  {view === 'login' ? "Don't have an account? " : view === 'register' ? "Already have an account? " : "Remember your password? "}
                 </span>
                 <button
                   type="button"
                   className="text-primary hover:text-primary-dark transition-colors"
                   onClick={() => {
-                    setIsLogin(!isLogin);
+                    setView(view === 'login' ? 'register' : 'login');
                     setError('');
+                    setSuccessMsg('');
                   }}
                 >
-                  {isLogin ? 'Create one now' : 'Sign in instead'}
+                  {view === 'login' ? 'Create one now' : 'Sign in instead'}
                 </button>
               </div>
             </div>
