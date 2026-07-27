@@ -22,6 +22,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   const { isAuthenticated, userId } = useAuthStore();
@@ -48,6 +49,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       setReviews(res.data.reviews);
       setAverageRating(res.data.averageRating);
       setTotalReviews(res.data.totalReviews);
+      setHasPurchased(res.data.hasPurchased);
     } catch (err) {
       console.error('Failed to fetch reviews', err);
     } finally {
@@ -117,7 +119,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
           </div>
         </div>
         
-        {isAuthenticated && !isFormOpen && (
+        {isAuthenticated && hasPurchased && !isFormOpen && (
           <button 
             onClick={() => {
               if (userReview) {
