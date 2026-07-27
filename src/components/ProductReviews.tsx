@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, MessageCircle, Edit2, X, PenLine } from 'lucide-react';
+import { Star, MessageCircle, Edit2, X, PenLine, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import axiosClient from '../api/axiosClient';
 
@@ -11,6 +11,7 @@ interface Review {
   comment: string;
   createdAt: string;
   updatedAt: string | null;
+  isVerifiedPurchase: boolean;
 }
 
 interface ProductReviewsProps {
@@ -226,7 +227,15 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                     {review.userName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">{review.userName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">{review.userName}</p>
+                      {review.isVerifiedPurchase && (
+                        <span className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/20">
+                          <ShieldCheck size={12} className="shrink-0" />
+                          Verified Buyer
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                       {review.updatedAt && ' (Edited)'}
