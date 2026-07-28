@@ -12,6 +12,7 @@ export interface CartItem {
 export interface Cart {
   sessionId: string;
   items: CartItem[];
+  appliedCouponCode?: string | null;
 }
 
 interface CartStore {
@@ -29,6 +30,8 @@ interface CartStore {
   updateQuantity: (productId: number, quantity: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
   checkout: (email: string, address: string) => Promise<any>;
+  applyCoupon: (code: string) => Promise<any>;
+  removeCoupon: () => Promise<void>;
 }
 
 // Generate a random session ID for the user if one doesn't exist
@@ -128,6 +131,42 @@ export const useCartStore = create<CartStore>((set, get) => ({
         } : null,
         isLoading: false
       }));
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
+
+  applyCoupon: async (code: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(`${API_URL}/${get().sessionId}/coupon`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(typeof data === 'string' ? data : data.message || 'Failed to apply coupon');
+      
+      await get().fetchCart();
+      set({ isLoading: false });
+      return data;
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+      throw error;
+    }
+  },
+
+  removeCoupon: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_URL}/${get().sessionId}/coupon`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to remove coupon');
+      
+      await get().fetchCart();
+      set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
     }

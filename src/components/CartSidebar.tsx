@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus } from 'lucide-react';
+import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus, Tag } from 'lucide-react';
 
 export const CartSidebar = () => {
-  const { cart, isOpen, toggleCart, removeFromCart, updateQuantity } = useCartStore();
+  const { cart, isOpen, toggleCart, removeFromCart, updateQuantity, applyCoupon, removeCoupon} = useCartStore();
   const navigate = useNavigate();
+  const [couponCode, setCouponCode] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
+  const [couponError, setCouponError] = useState('');
 
   const total = cart?.items?.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0) || 0;
 
@@ -114,11 +118,70 @@ export const CartSidebar = () => {
                 </div>
 
                 <div className="border-t border-slate-200 dark:border-slate-700/50 py-6 px-6 bg-slate-50 dark:bg-slate-800">
+                  
+                  {/* Coupon Section */}
+                  {cart?.items && cart.items.length > 0 && (
+                    <div className="mb-6">
+                      {cart.appliedCouponCode ? (
+                        <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800/30">
+                          <div className="flex items-center space-x-2 font-bold text-sm">
+                            <Tag size={16} />
+                            <span>Coupon applied: {cart.appliedCouponCode}</span>
+                          </div>
+                          <button 
+                            onClick={async () => await removeCoupon()}
+                            className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex space-x-2">
+                            <input
+                              type="text"
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                              placeholder="Enter promo code"
+                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            />
+                            <button
+                              onClick={async () => {
+                                if (!couponCode) return;
+                                setIsApplying(true);
+                                setCouponError('');
+                                try {
+                                  await applyCoupon(couponCode);
+                                  setCouponCode('');
+                                } catch (err: any) {
+                                  setCouponError(err.message);
+                                } finally {
+                                  setIsApplying(false);
+                                }
+                              }}
+                              disabled={isApplying || !couponCode}
+                              className="px-4 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-colors"
+                            >
+                              {isApplying ? '...' : 'Apply'}
+                            </button>
+                          </div>
+                          {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-lg font-bold text-slate-900 dark:text-white mb-2">
                     <p>Subtotal</p>
                     <p className="text-primary">₹{total.toFixed(2)}</p>
                   </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Shipping and taxes calculated at checkout.</p>
+                  {cart?.appliedCouponCode && (
+                    <div className="flex justify-between text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                      <p>Discount</p>
+                      <p>Applied at Checkout</p>
+                    </div>
+                  )}
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Shipping, taxes, and discounts calculated at checkout.</p>
                   
                   <button
                     onClick={() => {

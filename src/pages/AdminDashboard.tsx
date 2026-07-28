@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { PackageSearch, ShoppingCart, LayoutDashboard, Users } from 'lucide-react';
+import { PackageSearch, ShoppingCart, LayoutDashboard, Users, Ticket } from 'lucide-react';
 import { ProductManagement } from '../components/admin/ProductManagement';
 import { OrderManagement } from '../components/admin/OrderManagement';
 import { DashboardAnalytics } from '../components/admin/DashboardAnalytics';
 import { StaffManagement } from '../components/admin/StaffManagement';
+import { CouponManagement } from '../components/admin/CouponManagement';
 
 export const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'staff'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'staff' | 'coupons'>('overview');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -44,6 +45,13 @@ export const AdminDashboard = () => {
             <Users size={18} className="mb-0.5 sm:mb-0" />
             Staff
           </button>
+          <button
+            onClick={() => setActiveTab('coupons')}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-1 sm:px-4 py-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all ${activeTab === 'coupons' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+          >
+            <Ticket size={18} className="mb-0.5 sm:mb-0" />
+            Coupons
+          </button>
         </div>
       </div>
 
@@ -51,6 +59,7 @@ export const AdminDashboard = () => {
       {activeTab === 'products' && <ProductManagement />}
       {activeTab === 'orders' && <OrderManagement />}
       {activeTab === 'staff' && <StaffManagement />}
+      {activeTab === 'coupons' && <CouponManagement />}
     </div>
   );
 };
