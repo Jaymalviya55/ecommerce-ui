@@ -1,17 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
+import { useProfileStore, type Address } from '../store/useProfileStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { motion } from 'framer-motion';
-import { CreditCard, MapPin, Mail, CheckCircle, ArrowLeft, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { CreditCard, MapPin, Mail, CheckCircle, ArrowLeft, ShieldCheck, ShoppingBag, Home, Briefcase } from 'lucide-react';
 
 export const Checkout = () => {
   const { cart, checkout } = useCartStore();
+  const { addresses, fetchAddresses } = useProfileStore();
+  const { userEmail } = useAuthStore();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(userEmail || '');
   const [address, setAddress] = useState('');
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [showManualAddress, setShowManualAddress] = useState(false);
+
+  useEffect(() => {
+    fetchAddresses();
+  }, [fetchAddresses]);
+
+  useEffect(() => {
+    if (addresses.length > 0 && !selectedAddressId && !showManualAddress) {
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      setSelectedAddressId(defaultAddr.id);
+      setAddress(`${defaultAddr.fullName}, ${defaultAddr.streetAddress}, ${defaultAddr.locality}, ${defaultAddr.city}, ${defaultAddr.state} - ${defaultAddr.pincode}. Ph: ${defaultAddr.phoneNumber}`);
+    } else if (addresses.length === 0) {
+      setShowManualAddress(true);
+    }
+  }, [addresses, selectedAddressId, showManualAddress]);
+
+  const handleSelectAddress = (addr: Address) => {
+    setSelectedAddressId(addr.id);
+    setShowManualAddress(false);
+    setAddress(`${addr.fullName}, ${addr.streetAddress}, ${addr.locality}, ${addr.city}, ${addr.state} - ${addr.pincode}. Ph: ${addr.phoneNumber}`);
+  };
 
   // Dynamically load Razorpay script only when this page opens
   useEffect(() => {
@@ -165,21 +191,61 @@ export const Checkout = () => {
                 
                 <div className="space-y-5">
                   <div>
-                    <label htmlFor="address" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Full Address</label>
-                    <div className="relative">
-                      <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
-                        <MapPin size={18} className="text-slate-400 dark:text-slate-500" />
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Delivery Address</label>
+                    
+                    {addresses.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        {addresses.map(addr => (
+                          <div 
+                            key={addr.id}
+                            onClick={() => handleSelectAddress(addr)}
+                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id && !showManualAddress ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'}`}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              {addr.addressType === 'Home' ? <Home size={14} className="text-slate-500" /> : <Briefcase size={14} className="text-slate-500" />}
+                              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{addr.addressType}</span>
+                              {addr.isDefault && <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded">DEFAULT</span>}
+                            </div>
+                            <p className="font-semibold text-slate-900 dark:text-white text-sm mb-1">{addr.fullName}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                              {addr.streetAddress}, {addr.locality}, {addr.city}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">Ph: {addr.phoneNumber}</p>
+                          </div>
+                        ))}
                       </div>
-                      <textarea
-                        id="address"
-                        required
-                        rows={4}
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="123 Luxury Ave, Apt 4B, Metropolis"
-                      />
-                    </div>
+                    )}
+
+                    {addresses.length > 0 && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setShowManualAddress(true);
+                          setSelectedAddressId(null);
+                          setAddress('');
+                        }}
+                        className={`text-sm font-medium mb-4 flex items-center transition-colors ${showManualAddress ? 'text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                      >
+                        <MapPin size={16} className="mr-1" /> Type a different address manually
+                      </button>
+                    )}
+
+                    {showManualAddress && (
+                      <div className="relative animate-fadeIn">
+                        <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
+                          <MapPin size={18} className="text-slate-400 dark:text-slate-500" />
+                        </div>
+                        <textarea
+                          id="address"
+                          required
+                          rows={4}
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                          placeholder="123 Luxury Ave, Apt 4B, Metropolis"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

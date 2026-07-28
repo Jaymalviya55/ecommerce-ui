@@ -3,14 +3,16 @@ import { User, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, Message
 import { useAuthStore } from '../store/useAuthStore';
 import { useOrderStore } from '../store/useOrderStore';
 import { CustomerTickets } from '../components/profile/CustomerTickets';
+import { PersonalInfo } from '../components/profile/PersonalInfo';
+import { ManageAddresses } from '../components/profile/ManageAddresses';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import axiosClient from '../api/axiosClient';
 import toast from 'react-hot-toast';
 
 export const Profile = () => {
-  const { userEmail, isAdmin, roles } = useAuthStore();
+  const { roles } = useAuthStore();
   const { myOrders, isLoading, error, fetchMyOrders } = useOrderStore();
-  const [activeTab, setActiveTab] = useState<'account' | 'orders' | 'support'>('account');
+  const [activeTab, setActiveTab] = useState<'account' | 'addresses' | 'orders' | 'coupons' | 'reviews' | 'support'>('account');
   const [orderToCancel, setOrderToCancel] = useState<number | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
@@ -104,12 +106,35 @@ export const Profile = () => {
             {!roles.includes('FulfillmentStaff') && (
               <>
                 <button 
+                  onClick={() => setActiveTab('addresses')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'addresses' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Manage Addresses
+                </button>
+                <div className="my-2 border-t border-slate-200 dark:border-slate-700/50"></div>
+                <button 
                   onClick={() => setActiveTab('orders')}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
                 >
                   <Package size={20} />
                   My Orders
                 </button>
+                <button 
+                  onClick={() => setActiveTab('coupons')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'coupons' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19.5 12.572L12 20l-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.566z"/></svg>
+                  My Coupons
+                </button>
+                <button 
+                  onClick={() => setActiveTab('reviews')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'reviews' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  My Reviews
+                </button>
+                <div className="my-2 border-t border-slate-200 dark:border-slate-700/50"></div>
                 <button 
                   onClick={() => setActiveTab('support')}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'support' ? 'bg-primary/10 dark:bg-primary/20 text-primary' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/30'}`}
@@ -123,44 +148,9 @@ export const Profile = () => {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1">
-          {activeTab === 'account' && (
-            <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden rounded-2xl shadow-xl dark:shadow-2xl">
-              <div className="px-6 py-6">
-                <h3 className="text-xl leading-6 font-semibold text-slate-900 dark:text-slate-100">User Profile</h3>
-                <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">Personal details and secure information.</p>
-              </div>
-              <div className="border-t border-slate-200 dark:border-slate-700/50">
-                <dl>
-                  <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Email address</dt>
-                    <dd className="mt-1 text-sm text-slate-900 dark:text-slate-200 sm:mt-0 sm:col-span-2 font-medium">{userEmail}</dd>
-                  </div>
-                  <div className="bg-white dark:bg-transparent px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Security Status</dt>
-                    <dd className="mt-1 text-sm text-emerald-500 dark:text-emerald-400 font-medium flex items-center gap-2 sm:mt-0 sm:col-span-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></div>
-                      Fully Authenticated (JWT)
-                    </dd>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Account Type</dt>
-                    <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
-                      {isAdmin ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 dark:bg-primary/20 text-primary border border-primary/20 dark:border-primary/30 shadow-inner">
-                          Admin User
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600/50">
-                          Standard User
-                        </span>
-                      )}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          )}
+        <div className="flex-1 min-w-0">
+          {activeTab === 'account' && <PersonalInfo />}
+          {activeTab === 'addresses' && <ManageAddresses />}
 
           {!roles.includes('FulfillmentStaff') && activeTab === 'orders' && (
             <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-2xl p-6">
