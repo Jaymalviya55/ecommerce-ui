@@ -7,6 +7,7 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   unitPrice: number;
+  imageUrl?: string;
 }
 
 export interface Order {
@@ -30,6 +31,7 @@ interface OrderState {
   shipOrder: (id: number, trackingNumber: string, carrierName: string) => Promise<void>;
   deliverOrder: (id: number) => Promise<void>;
   cancelOrder: (id: number) => Promise<void>;
+  updateOrderStatus: (id: number, status: string) => Promise<void>;
 }
 
 export const useOrderStore = create<OrderState>((set, get) => ({
@@ -91,6 +93,19 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await axiosClient.put(`/orders/${id}/cancel`);
+      await get().fetchAllOrders();
+    } catch (err: unknown) {
+      const message = axios.isAxiosError(err) 
+        ? (typeof err.response?.data === 'string' ? err.response.data : err.message)
+        : err instanceof Error ? err.message : String(err);
+      set({ error: message, isLoading: false });
+      throw err;
+    }
+  },
+  updateOrderStatus: async (id: number, status: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axiosClient.put(`/orders/${id}/status`, { status });
       await get().fetchAllOrders();
     } catch (err: unknown) {
       const message = axios.isAxiosError(err) 
