@@ -5,6 +5,8 @@ import { CustomerTickets } from '../components/profile/CustomerTickets';
 import { PersonalInfo } from '../components/profile/PersonalInfo';
 import { ManageAddresses } from '../components/profile/ManageAddresses';
 import { MyOrders } from '../components/profile/MyOrders';
+import { MyCoupons } from '../components/profile/MyCoupons';
+import { MyReviews } from '../components/profile/MyReviews';
 
 export const Profile = () => {
   const { roles } = useAuthStore();
@@ -77,6 +79,14 @@ export const Profile = () => {
 
           {!roles.includes('FulfillmentStaff') && activeTab === 'orders' && (
             <MyOrders />
+          )}
+
+          {!roles.includes('FulfillmentStaff') && activeTab === 'coupons' && (
+            <MyCoupons />
+          )}
+
+          {!roles.includes('FulfillmentStaff') && activeTab === 'reviews' && (
+            <MyReviews />
           )}
 
           {!roles.includes('FulfillmentStaff') && activeTab === 'support' && (
