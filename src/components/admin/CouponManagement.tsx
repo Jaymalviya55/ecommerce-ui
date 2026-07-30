@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Ticket, Plus, Loader, CheckCircle2, XCircle } from 'lucide-react';
+import { Ticket, Plus, Loader, XCircle } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface Coupon {
   id: number;
@@ -11,6 +12,7 @@ interface Coupon {
   isActive: boolean;
   expirationDate: string;
   minimumSpend: number;
+  assignedToEmail: string | null;
   createdAt: string;
 }
 
@@ -24,6 +26,7 @@ export const CouponManagement = () => {
   const [discountPercentage, setDiscountPercentage] = useState<number | ''>(10);
   const [minimumSpend, setMinimumSpend] = useState<number | ''>(0);
   const [expirationDate, setExpirationDate] = useState<string>('');
+  const [assignedToEmail, setAssignedToEmail] = useState('');
 
   useEffect(() => {
     const fetchCoupons = async () => {
@@ -50,7 +53,8 @@ export const CouponManagement = () => {
         discountPercentage: Number(discountPercentage) || 0,
         isActive: true,
         expirationDate: new Date(expirationDate).toISOString(),
-        minimumSpend: Number(minimumSpend) || 0
+        minimumSpend: Number(minimumSpend) || 0,
+        assignedToEmail: assignedToEmail || null
       });
 
       setIsCreating(false);
@@ -58,6 +62,7 @@ export const CouponManagement = () => {
       setDiscountPercentage(10);
       setMinimumSpend(0);
       setExpirationDate('');
+      setAssignedToEmail('');
       
       // Re-fetch manually
       try {
@@ -72,6 +77,19 @@ export const CouponManagement = () => {
       } else {
         alert(error instanceof Error ? error.message : String(error));
       }
+    }
+  };
+
+  const toggleStatus = async (coupon: Coupon) => {
+    try {
+      await axiosClient.put(`/coupons/${coupon.id}/status`, !coupon.isActive, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      // Update local state
+      setCoupons(coupons.map(c => c.id === coupon.id ? { ...c, isActive: !c.isActive } : c));
+      toast.success(`Coupon ${coupon.code} is now ${!coupon.isActive ? 'Active' : 'Inactive'}`);
+    } catch (e: any) {
+      toast.error(e.response?.data || "Error updating status");
     }
   };
 
@@ -105,7 +123,7 @@ export const CouponManagement = () => {
           className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/50"
           onSubmit={handleCreate}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Coupon Code</label>
               <input
@@ -152,6 +170,16 @@ export const CouponManagement = () => {
                 className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
               />
             </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Assigned To Email</label>
+              <input
+                type="email"
+                value={assignedToEmail}
+                onChange={(e) => setAssignedToEmail(e.target.value)}
+                placeholder="Optional (Global if empty)"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+            </div>
           </div>
           <div className="mt-4 flex justify-end">
             <button type="submit" className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold transition-colors">
@@ -178,6 +206,7 @@ export const CouponManagement = () => {
                 <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700/50">
                   <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Code</th>
                   <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Discount</th>
+                  <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Target User</th>
                   <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Min Spend</th>
                   <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Expiration</th>
                   <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Status</th>
@@ -190,20 +219,32 @@ export const CouponManagement = () => {
                     <tr key={coupon.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="p-4 font-bold text-primary">{coupon.code}</td>
                       <td className="p-4 text-slate-900 dark:text-white">{coupon.discountPercentage}%</td>
-                      <td className="p-4 text-slate-900 dark:text-white">₹{coupon.minimumSpend}</td>
-                      <td className="p-4 text-slate-900 dark:text-white">{new Date(coupon.expirationDate).toLocaleDateString()}</td>
                       <td className="p-4">
-                        {coupon.isActive && !isExpired ? (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                            <CheckCircle2 size={12} />
-                            <span>Active</span>
-                          </span>
+                        {coupon.assignedToEmail ? (
+                          <span className="text-sm text-primary font-medium">{coupon.assignedToEmail}</span>
                         ) : (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
-                            <XCircle size={12} />
-                            <span>Expired/Inactive</span>
-                          </span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Global</span>
                         )}
+                      </td>
+                      <td className="p-4 text-slate-900 dark:text-white">₹{coupon.minimumSpend}</td>
+                      <td className="p-4 text-slate-900 dark:text-white flex items-center gap-2">
+                        {new Date(coupon.expirationDate).toLocaleDateString()}
+                        {isExpired && <span className="text-xs text-rose-500 font-bold">(Expired)</span>}
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => toggleStatus(coupon)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+                            coupon.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                          }`}
+                        >
+                          <span className="sr-only">Toggle active status</span>
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              coupon.isActive ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
                       </td>
                     </tr>
                   );

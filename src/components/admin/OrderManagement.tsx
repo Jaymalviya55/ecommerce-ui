@@ -4,7 +4,7 @@ import { Clock, CheckCircle, Truck, XCircle, AlertCircle } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 
 export const OrderManagement = () => {
-  const { allOrders, isLoading: isLoadingOrders, fetchAllOrders, shipOrder, deliverOrder, cancelOrder, updateOrderStatus } = useOrderStore();
+  const { allOrders, isLoading: isLoadingOrders, fetchAllOrders, shipOrder, deliverOrder, cancelOrder } = useOrderStore();
 
   const [activeModal, setActiveModal] = useState<'ship' | 'cancel' | 'deliver' | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -31,23 +31,7 @@ export const OrderManagement = () => {
     setErrorMsg('');
   };
 
-  const handleStatusChange = async (orderId: number, currentStatus: string, newStatus: string) => {
-    if (newStatus === currentStatus) return;
-    
-    if (newStatus === 'Shipped') {
-      openModal('ship', orderId);
-    } else if (newStatus === 'Cancelled') {
-      openModal('cancel', orderId);
-    } else if (newStatus === 'Delivered') {
-      openModal('deliver', orderId);
-    } else {
-      try {
-        await updateOrderStatus(orderId, newStatus);
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : String(err));
-      }
-    }
-  };
+
 
   const handleShipSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,18 +126,15 @@ export const OrderManagement = () => {
                       ₹{order.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
-                      <select 
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, order.status, e.target.value)}
-                        className={`text-sm font-semibold rounded-lg px-3 py-1.5 border outline-none cursor-pointer transition-colors ${getStatusColor(order.status)}`}
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
-                        <option value="Returned">Returned</option>
-                      </select>
+                      {(order.status === 'Pending' || order.status === 'Paid') && (
+                        <>
+                          <button onClick={() => openModal('ship', order.id)} className="text-primary hover:text-primary-hover font-semibold transition-colors bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20">Ship</button>
+                          <button onClick={() => openModal('cancel', order.id)} className="text-rose-400 hover:text-rose-300 font-semibold transition-colors bg-rose-400/10 px-3 py-1.5 rounded-lg hover:bg-rose-400/20">Cancel</button>
+                        </>
+                      )}
+                      {order.status === 'Shipped' && (
+                        <button onClick={() => openModal('deliver', order.id)} className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-lg hover:bg-emerald-400/20">Mark Delivered</button>
+                      )}
                     </td>
                   </tr>
                 ))}
