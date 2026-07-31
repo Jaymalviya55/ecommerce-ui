@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package, MessagesSquare, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useThemeStore } from '../../store/useThemeStore';
+import { hasPermission } from '../../utils/permissionCheck';
 import axiosClient from '../../api/axiosClient';
 
 interface NavbarProps {
@@ -52,12 +53,19 @@ const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, o
 
 export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
   const { cart, toggleCart } = useCartStore();
-  const { isAuthenticated, isAdmin, userEmail, logout, roles } = useAuthStore();
+  const { isAuthenticated, isAdmin, userEmail, logout, roles, permissions, fetchUserInfo } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const isWarehouseOnly = roles.includes('FulfillmentStaff') && !isAdmin;
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserInfo();
+    }
+  }, [isAuthenticated]);
+
+  const canAccessAdmin = isAdmin || hasPermission(permissions, '@admin/all', 'read');
+  const isWarehouseOnly = roles.includes('FulfillmentStaff') && !canAccessAdmin;
   
   const handleLogout = async () => {
     try {
