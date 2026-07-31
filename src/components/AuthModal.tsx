@@ -16,6 +16,8 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [view, setView] = useState<'login' | 'register' | 'forgot-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [userTypeId, setUserTypeId] = useState<number>(4);
+  const [userLevelId, setUserLevelId] = useState<number>(4);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -35,9 +37,9 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         onClose();
         toast.success(`Welcome back!`);
       } else if (view === 'register') {
-        await axiosClient.post('/auth/register', { email, password });
+        const res = await axiosClient.post('/auth/register', { email, password, userTypeId, userLevelId });
         setView('login');
-        toast.success('Registration successful! Please check your email to verify your account.', { duration: 5000 });
+        toast.success(`Registration successful as ${res.data.assignedRole || 'User'} (UserType: ${res.data.userTypeId}, UserLevel: ${res.data.userLevelId})! Check email to verify.`, { duration: 6000 });
       } else if (view === 'forgot-password') {
         const response = await axiosClient.post('/auth/forgot-password', { email });
         setSuccessMsg(response.data.message || 'Reset link sent!');
@@ -135,6 +137,49 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   )}
                 </AnimatePresence>
                 
+                {view === 'register' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Account Type (Select Role)
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { setUserTypeId(4); setUserLevelId(4); }}
+                        className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                          userTypeId === 4 
+                            ? 'bg-indigo-500/10 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        🛒 Customer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setUserTypeId(2); setUserLevelId(2); }}
+                        className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                          userTypeId === 2 
+                            ? 'bg-indigo-500/10 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        🏪 Merchant
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setUserTypeId(3); setUserLevelId(3); }}
+                        className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                          userTypeId === 3 
+                            ? 'bg-indigo-500/10 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        🎧 Support
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
                   <div className="relative">
