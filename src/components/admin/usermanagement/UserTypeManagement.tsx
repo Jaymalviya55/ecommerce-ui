@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axiosClient from '../../../api/axiosClient';
 import { Plus, Edit2, Search, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Modal } from '../../ui/Modal';
 
 interface UserType {
   userTypeId: number;
@@ -128,51 +129,50 @@ export const UserTypeManagement = ({ onBack }: { onBack?: () => void }) => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{editingItem ? 'Edit User Type' : 'Add User Type'}</h3>
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. Head Office"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Code *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. UT03"
-                />
-              </div>
-              <div className="flex items-center space-x-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <label htmlFor="isActive" className="text-xs font-bold text-slate-700 dark:text-slate-300">Is Active</label>
-              </div>
-              <div className="flex justify-end space-x-3 pt-4 border-t">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Save</button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title={editingItem ? 'Edit User Type' : 'Add User Type'}
+      >
+        <form onSubmit={handleSave} className="space-y-5">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Name *</label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              placeholder="e.g. Head Office"
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Code *</label>
+            <input
+              type="text"
+              required
+              value={formData.code}
+              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              placeholder="e.g. UT03"
+            />
+          </div>
+          <div className="flex items-center space-x-2 pt-2">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={formData.isActive}
+              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+            />
+            <label htmlFor="isActive" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Is Active</label>
+          </div>
+          <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
+            <button type="submit" className="px-5 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all active:scale-95">Save</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
