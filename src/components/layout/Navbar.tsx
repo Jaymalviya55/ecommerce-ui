@@ -53,7 +53,7 @@ const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, o
 
 export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
   const { cart, toggleCart } = useCartStore();
-  const { isAuthenticated, isAdmin, userEmail, logout, roles, permissions, fetchUserInfo } = useAuthStore();
+  const { isAuthenticated, isAdmin, userEmail, logout, permissions, fetchUserInfo } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -65,7 +65,10 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
   }, [isAuthenticated]);
 
   const canAccessAdmin = isAdmin || hasPermission(permissions, '@admin/all', 'read');
-  const isWarehouseOnly = roles.includes('FulfillmentStaff') && !canAccessAdmin;
+  const canAccessFulfillment = hasPermission(permissions, 'Fulfillment', 'read') || canAccessAdmin;
+  const canAccessSupport = hasPermission(permissions, 'Support', 'read') || canAccessAdmin;
+  const canAccessAnalytics = hasPermission(permissions, 'Analytics', 'read') || canAccessAdmin;
+  const isWarehouseOnly = canAccessFulfillment && !canAccessAdmin && !canAccessSupport;
   
   const handleLogout = async () => {
     try {
@@ -137,7 +140,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                     </Link>
                   </li>
                 )}
-                {roles.includes('FulfillmentStaff') && (
+                {canAccessFulfillment && (
                   <li>
                     <Link to="/fulfillment" className="flex items-center space-x-1 text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors bg-purple-500/10 px-3 py-1.5 rounded-full">
                       <Package size={14} />
@@ -145,21 +148,21 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                     </Link>
                   </li>
                 )}
-                {(isAdmin || roles.includes('SupportAgent')) && (
-                  <>
-                    <li>
-                      <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
-                        <MessagesSquare size={14} />
-                        <span>Support Desk</span>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/support/analytics" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
-                        <BarChart3 size={14} />
-                        <span>Analytics</span>
-                      </Link>
-                    </li>
-                  </>
+                {canAccessSupport && (
+                  <li>
+                    <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
+                      <MessagesSquare size={14} />
+                      <span>Support Desk</span>
+                    </Link>
+                  </li>
+                )}
+                {canAccessAnalytics && (
+                  <li>
+                    <Link to="/support/analytics" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
+                      <BarChart3 size={14} />
+                      <span>Analytics</span>
+                    </Link>
+                  </li>
                 )}
               </ul>
             </nav>
@@ -272,7 +275,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                       </div>
                     </Link>
                   )}
-                  {(roles.includes('FulfillmentStaff')) && (
+                  {canAccessFulfillment && (
                     <Link to="/fulfillment" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-colors mt-2 border border-purple-500/20">
                       <div className="flex items-center space-x-2">
                         <Package size={18} />
@@ -280,21 +283,21 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
                       </div>
                     </Link>
                   )}
-                  {(roles.includes('SupportAgent') || isAdmin) && (
-                    <>
-                      <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
-                        <div className="flex items-center space-x-2">
-                          <MessagesSquare size={18} />
-                          <span>Support Desk</span>
-                        </div>
-                      </Link>
-                      <Link to="/support/analytics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
-                        <div className="flex items-center space-x-2">
-                          <BarChart3 size={18} />
-                          <span>Support Analytics</span>
-                        </div>
-                      </Link>
-                    </>
+                  {canAccessSupport && (
+                    <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
+                      <div className="flex items-center space-x-2">
+                        <MessagesSquare size={18} />
+                        <span>Support Desk</span>
+                      </div>
+                    </Link>
+                  )}
+                  {canAccessAnalytics && (
+                    <Link to="/support/analytics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
+                      <div className="flex items-center space-x-2">
+                        <BarChart3 size={18} />
+                        <span>Support Analytics</span>
+                      </div>
+                    </Link>
                   )}
                 </nav>
                 

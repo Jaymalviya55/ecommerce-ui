@@ -1,12 +1,15 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import { hasPermission } from '../utils/permissionCheck';
 
 export const FulfillmentRoute = () => {
-  const { isAuthenticated, roles } = useAuthStore();
+  const { isAuthenticated, permissions, isAdmin } = useAuthStore();
   
   if (!isAuthenticated) return <Navigate to="/" replace />;
   
-  if (!roles.includes('Admin') && !roles.includes('FulfillmentStaff')) {
+  const canAccessFulfillment = isAdmin || hasPermission(permissions, 'Fulfillment', 'read');
+
+  if (!canAccessFulfillment) {
       return <Navigate to="/" replace />;
   }
   
