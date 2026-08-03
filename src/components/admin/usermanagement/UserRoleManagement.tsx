@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axiosClient from '../../../api/axiosClient';
-import { Plus, X, Search, ArrowLeft } from 'lucide-react';
+import { Plus, Search, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Modal } from '../../ui/Modal';
 
 interface UserLevel {
   userLevelId: number;
@@ -136,74 +137,67 @@ export const UserRoleManagement = ({ onBack }: { onBack?: () => void }) => {
         </div>
       </div>
 
-      {/* Modal matching Image 3 UI */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-xl shadow-2xl relative">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">Add User Role</h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-full">
-                <X size={20} />
-              </button>
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Add User Role"
+        maxWidth="max-w-xl"
+      >
+        <form onSubmit={handleSave} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">User Level *</label>
+              <select
+                value={formData.userLevelId}
+                onChange={(e) => setFormData({ ...formData, userLevelId: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              >
+                {levels.map(l => (
+                  <option key={l.userLevelId} value={l.userLevelId}>{l.name}</option>
+                ))}
+              </select>
             </div>
-
-            <form onSubmit={handleSave} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">User Level *</label>
-                  <select
-                    value={formData.userLevelId}
-                    onChange={(e) => setFormData({ ...formData, userLevelId: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
-                  >
-                    {levels.map(l => (
-                      <option key={l.userLevelId} value={l.userLevelId}>{l.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Enter Name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Sequence</label>
-                  <input
-                    type="number"
-                    value={formData.sequence}
-                    onChange={(e) => setFormData({ ...formData, sequence: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-                <div className="flex items-center space-x-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="allLevel"
-                    checked={formData.applicableToAllSelectedLevelUser}
-                    onChange={(e) => setFormData({ ...formData, applicableToAllSelectedLevelUser: e.target.checked })}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <label htmlFor="allLevel" className="text-xs font-bold text-slate-700 dark:text-slate-300">Applicable to all selected level users</label>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-6 border-t">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-semibold text-slate-600 border rounded-xl hover:bg-slate-50">Clear</button>
-                <button type="submit" className="px-5 py-2.5 text-sm font-semibold bg-slate-900 text-white rounded-xl hover:bg-slate-800 shadow-md">Save</button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                placeholder="Enter Name"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Sequence</label>
+              <input
+                type="number"
+                value={formData.sequence}
+                onChange={(e) => setFormData({ ...formData, sequence: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              />
+            </div>
+            <div className="flex items-center space-x-2 pt-6">
+              <input
+                type="checkbox"
+                id="allLevel"
+                checked={formData.applicableToAllSelectedLevelUser}
+                onChange={(e) => setFormData({ ...formData, applicableToAllSelectedLevelUser: e.target.checked })}
+                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+              />
+              <label htmlFor="allLevel" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Applicable to all selected level users</label>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Clear</button>
+            <button type="submit" className="px-5 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all active:scale-95">Save</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
