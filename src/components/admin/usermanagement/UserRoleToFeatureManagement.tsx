@@ -15,37 +15,40 @@ interface PolicyRule {
   action: string;
 }
 
-const AVAILABLE_FEATURES = [
-  { key: '@admin/dashboard', name: 'Dashboard Analytics' },
-  { key: '@admin/analytics', name: 'Analytics Reports' },
-  { key: '@admin/coupons', name: 'Coupons & Promotions' },
-  { key: '@admin/orders', name: 'Orders Management' },
-  { key: '@admin/products', name: 'Products Management' },
-  { key: '@admin/categories', name: 'Categories Management' },
-  { key: '@admin/user-management', name: 'User Management Suite' }
-];
+interface FeatureOption {
+  key: string;
+  name: string;
+}
 
 export const UserRoleToFeatureManagement = ({ onBack }: { onBack?: () => void }) => {
   const [policies, setPolicies] = useState<PolicyRule[]>([]);
   const [roles, setRoles] = useState<RoleOption[]>([]);
+  const [availableFeatures, setAvailableFeatures] = useState<FeatureOption[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     userRoleName: '',
-    featureKey: '@admin/analytics',
+    featureKey: '',
     action: 'read'
   });
 
   const fetchData = async () => {
     try {
-      const [polRes, roleRes] = await Promise.all([
+      const [polRes, roleRes, featRes] = await Promise.all([
         axiosClient.get('/UserRoleToFeature'),
-        axiosClient.get('/UserRole')
+        axiosClient.get('/UserRole'),
+        axiosClient.get('/Features')
       ]);
       setPolicies(polRes.data);
       setRoles(roleRes.data);
-      if (roleRes.data.length > 0) {
-        setFormData(f => ({ ...f, userRoleName: roleRes.data[0].name }));
-      }
+      setAvailableFeatures(featRes.data);
+      
+      let defaultRole = '';
+      let defaultFeature = '*';
+      
+      if (roleRes.data.length > 0) defaultRole = roleRes.data[0].name;
+      if (featRes.data.length > 0) defaultFeature = featRes.data[0].key;
+
+      setFormData(f => ({ ...f, userRoleName: f.userRoleName || defaultRole, featureKey: f.featureKey || defaultFeature }));
     } catch {
       toast.error('Failed to load Casbin Role to Feature policies');
     }
@@ -182,7 +185,7 @@ export const UserRoleToFeatureManagement = ({ onBack }: { onBack?: () => void })
                     onChange={(e) => setFormData({ ...formData, featureKey: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
                   >
-                    {AVAILABLE_FEATURES.map(f => (
+                    {availableFeatures.map(f => (
                       <option key={f.key} value={f.key}>{f.name} ({f.key})</option>
                     ))}
                     <option value="*">All Features (*)</option>
