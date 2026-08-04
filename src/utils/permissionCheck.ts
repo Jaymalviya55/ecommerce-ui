@@ -6,10 +6,13 @@ export function hasPermission(
   if (!feature) return true;
   if (!permissions) return false;
 
-  if (permissions['@admin/all']?.includes('write') || permissions['@admin/all']?.includes('read')) {
+  // SuperAdmin global permission check
+  const adminPerms = permissions['@admin/all'] || permissions['*'];
+  if (adminPerms?.includes('write') || adminPerms?.includes('read') || adminPerms?.includes('*')) {
     return true;
   }
 
-  const featurePermissions = permissions[feature];
-  return featurePermissions ? featurePermissions.includes(action) : false;
+  // Strict exact match against the backend Features constant string
+  const userPerms = permissions[feature];
+  return userPerms ? (userPerms.includes(action) || userPerms.includes('*')) : false;
 }

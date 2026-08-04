@@ -7,8 +7,8 @@ export const SupportRoute = () => {
   
   if (!isAuthenticated) return <Navigate to="/" replace />;
 
-  const canAccessSupport = isAdmin || hasPermission(permissions, 'Support', 'read');
-  const canAccessAnalytics = isAdmin || hasPermission(permissions, 'Analytics', 'read');
+  const canAccessSupport = isAdmin || hasPermission(permissions, '@support/desk', 'read');
+  const canAccessAnalytics = isAdmin || hasPermission(permissions, '@analytics/view', 'read');
 
   if (!canAccessSupport && !canAccessAnalytics) return <Navigate to="/" replace />;
 
