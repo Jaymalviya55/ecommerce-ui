@@ -7,7 +7,7 @@ export const FulfillmentRoute = () => {
   
   if (!isAuthenticated) return <Navigate to="/" replace />;
   
-  const canAccessFulfillment = isAdmin || hasPermission(permissions, 'Fulfillment', 'read');
+  const canAccessFulfillment = isAdmin || hasPermission(permissions, '@fulfillment/orders', 'read');
 
   if (!canAccessFulfillment) {
       return <Navigate to="/" replace />;

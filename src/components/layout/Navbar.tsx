@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, Shield, Search, Menu, X, Sun, Moon, Package, MessagesSquare, BarChart3 } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Search, Menu, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useThemeStore } from '../../store/useThemeStore';
-import { hasPermission } from '../../utils/permissionCheck';
 import axiosClient from '../../api/axiosClient';
 
 interface NavbarProps {
   onOpenAuthModal: () => void;
+  onToggleSidebar?: () => void;
 }
 
 const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, onClear: () => void }) => {
@@ -51,9 +51,9 @@ const SearchBar = ({ onSearch, onClear }: { onSearch: (query: string) => void, o
   );
 };
 
-export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
+export const Navbar = ({ onOpenAuthModal, onToggleSidebar }: NavbarProps) => {
   const { cart, toggleCart } = useCartStore();
-  const { isAuthenticated, isAdmin, userEmail, logout, permissions, fetchUserInfo } = useAuthStore();
+  const { isAuthenticated, userEmail, logout, fetchUserInfo } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -64,11 +64,7 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
     }
   }, [isAuthenticated]);
 
-  const canAccessAdmin = isAdmin || hasPermission(permissions, '@admin/all', 'read');
-  const canAccessFulfillment = hasPermission(permissions, 'Fulfillment', 'read') || canAccessAdmin;
-  const canAccessSupport = hasPermission(permissions, 'Support', 'read') || canAccessAdmin;
-  const canAccessAnalytics = hasPermission(permissions, 'Analytics', 'read') || canAccessAdmin;
-  const isWarehouseOnly = canAccessFulfillment && !canAccessAdmin && !canAccessSupport;
+  const isWarehouseOnly = false;
   
   const handleLogout = async () => {
     try {
@@ -90,23 +86,19 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
     navigate('/');
   };
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
   return (
     <>
-      {/* 
-        We use glassmorphism backgrounds for both themes. 
-      */}
-      <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl saturate-150 border-b border-slate-200/50 dark:border-slate-700/30 shadow-sm transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl saturate-150 border-b border-slate-200/50 dark:border-slate-700/30 shadow-sm transition-all duration-300">
         
-        {/* Top Row: Logo, Desktop Search, Actions */}
+        {/* Top Row: Hamburger Menu Button, Logo, Search, Actions */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           
-          {/* Mobile Menu Button & Logo */}
+          {/* Sidebar Toggle Button & Brand Logo */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             <button 
-              className="lg:hidden text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white p-1 -ml-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
-              onClick={() => setIsMobileMenuOpen(true)}
-              aria-label="Open Menu"
+              className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+              onClick={onToggleSidebar ? onToggleSidebar : () => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Navigation Sidebar"
             >
               <Menu size={24} />
             </button>
@@ -116,212 +108,74 @@ export const Navbar = ({ onOpenAuthModal }: NavbarProps) => {
             </Link>
           </div>
           
-          <div className="hidden lg:flex flex-1 px-8">
+          {/* Search Bar (Desktop) */}
+          <div className="hidden sm:flex flex-1 px-4 lg:px-8">
             {!isWarehouseOnly && <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />}
           </div>
 
-          {/* Desktop Links & Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-6">
-            <nav className="hidden lg:block">
-              <ul className="flex items-center space-x-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
-                {!isWarehouseOnly && (
-                  <>
-                    <li><Link to="/" className="hover:text-primary transition-colors">Shop</Link></li>
-                    <li><Link to="/category/electronics" className="hover:text-primary transition-colors">Tech</Link></li>
-                    <li><Link to="/category/clothes" className="hover:text-primary transition-colors">Apparel</Link></li>
-                  </>
-                )}
-                
-                {isAdmin && (
-                  <li>
-                    <Link to="/admin" className="flex items-center space-x-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-400/10 px-3 py-1.5 rounded-full">
-                      <Shield size={14} />
-                      <span>Admin</span>
-                    </Link>
-                  </li>
-                )}
-                {canAccessFulfillment && (
-                  <li>
-                    <Link to="/fulfillment" className="flex items-center space-x-1 text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors bg-purple-500/10 px-3 py-1.5 rounded-full">
-                      <Package size={14} />
-                      <span>Warehouse</span>
-                    </Link>
-                  </li>
-                )}
-                {canAccessSupport && (
-                  <li>
-                    <Link to="/support" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
-                      <MessagesSquare size={14} />
-                      <span>Support Desk</span>
-                    </Link>
-                  </li>
-                )}
-                {canAccessAnalytics && (
-                  <li>
-                    <Link to="/support/analytics" className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-full">
-                      <BarChart3 size={14} />
-                      <span>Analytics</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
+          {/* Desktop & Mobile Actions */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Theme Switcher */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
 
-            {/* Auth & Cart */}
-            <div className="flex items-center space-x-2 sm:space-x-4 lg:border-l border-slate-200 dark:border-slate-700/50 lg:pl-6">
-              
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
-                aria-label="Toggle Theme"
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            {/* Auth Badge */}
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <Link to="/profile/account" className="flex items-center space-x-2 hover:text-slate-900 dark:hover:text-white transition-colors group">
+                  <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-200 dark:border-indigo-800">
+                    {userEmail ? userEmail[0].toUpperCase() : 'U'}
+                  </div>
+                  <span className="max-w-[100px] truncate text-sm font-semibold text-slate-700 dark:text-slate-200 hidden md:block">{userEmail?.split('@')[0]}</span>
+                </Link>
+                <button onClick={handleLogout} className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/50" title="Logout">
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : (
+              <button onClick={onOpenAuthModal} className="flex items-center space-x-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md shadow-primary/20 hover:shadow-primary/40">
+                <User size={16} />
+                <span className="hidden sm:inline">Sign In</span>
               </button>
-
-              {isAuthenticated ? (
-                <div className="hidden sm:flex items-center space-x-4">
-                  <Link to="/profile" className="flex items-center space-x-2 hover:text-slate-900 dark:hover:text-white transition-colors group">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors border border-slate-200 dark:border-slate-600">
-                      <User size={16} className="text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white" />
-                    </div>
-                    <span className="max-w-[100px] truncate text-sm font-medium text-slate-700 dark:text-slate-200 hidden md:block">{userEmail?.split('@')[0]}</span>
-                  </Link>
-                  <button onClick={handleLogout} className="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-2 rounded-full hover:bg-rose-50 dark:hover:bg-rose-400/10" title="Logout">
-                    <LogOut size={18} />
-                  </button>
-                </div>
-              ) : (
-                <button onClick={onOpenAuthModal} className="hidden sm:flex items-center space-x-2 bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full text-sm font-medium transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5">
-                  <User size={16} />
-                  <span>Sign In</span>
-                </button>
-              )}
-              
-              {!isWarehouseOnly && (
-                <button 
-                  onClick={toggleCart}
-                  className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors group"
-                  aria-label="Open Cart"
-                >
-                  <ShoppingBag size={24} className="group-hover:scale-110 transition-transform duration-300" />
-                  <AnimatePresence>
-                    {cartItemCount > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg border-2 border-slate-800"
-                      >
-                        {cartItemCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </button>
-              )}
-            </div>
+            )}
+            
+            {/* Shopping Cart */}
+            {!isWarehouseOnly && (
+              <button 
+                onClick={toggleCart}
+                className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors group"
+                aria-label="Open Cart"
+              >
+                <ShoppingBag size={24} className="group-hover:scale-110 transition-transform duration-300" />
+                <AnimatePresence>
+                  {cartItemCount > 0 && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg border-2 border-white dark:border-slate-900"
+                    >
+                      {cartItemCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            )}
           </div>
         </div>
 
+        {/* Search Bar (Mobile sub-header) */}
         {!isWarehouseOnly && (
-          <div className="lg:hidden px-4 pb-3 pt-1 border-t border-slate-200 dark:border-slate-700/30">
+          <div className="sm:hidden px-4 pb-3 pt-1 border-t border-slate-200/50 dark:border-slate-800">
             <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
           </div>
         )}
       </header>
-
-      {/* Mobile Sidebar Menu (Hamburger Drawer) */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm z-50 lg:hidden"
-              onClick={closeMobileMenu}
-            />
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50 shadow-2xl flex flex-col lg:hidden"
-            >
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                <span className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <User size={20} className="text-primary" />
-                  {isAuthenticated ? `Hi, ${userEmail?.split('@')[0]}` : 'Welcome'}
-                </span>
-                <button onClick={closeMobileMenu} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto py-4">
-                <nav className="space-y-1 px-3">
-                  {!isWarehouseOnly && (
-                    <>
-                      <Link to="/" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Home (Shop All)</Link>
-                      <Link to="/category/electronics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Electronics</Link>
-                      <Link to="/category/clothes" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Apparel</Link>
-                    </>
-                  )}
-                  
-                  {isAdmin && (
-                    <Link to="/admin" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-colors mt-4 border border-emerald-500/20">
-                      <div className="flex items-center space-x-2">
-                        <Shield size={18} />
-                        <span>Admin Dashboard</span>
-                      </div>
-                    </Link>
-                  )}
-                  {canAccessFulfillment && (
-                    <Link to="/fulfillment" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-colors mt-2 border border-purple-500/20">
-                      <div className="flex items-center space-x-2">
-                        <Package size={18} />
-                        <span>Fulfillment Station</span>
-                      </div>
-                    </Link>
-                  )}
-                  {canAccessSupport && (
-                    <Link to="/support" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
-                      <div className="flex items-center space-x-2">
-                        <MessagesSquare size={18} />
-                        <span>Support Desk</span>
-                      </div>
-                    </Link>
-                  )}
-                  {canAccessAnalytics && (
-                    <Link to="/support/analytics" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors mt-2 border border-indigo-500/20">
-                      <div className="flex items-center space-x-2">
-                        <BarChart3 size={18} />
-                        <span>Support Analytics</span>
-                      </div>
-                    </Link>
-                  )}
-                </nav>
-                
-                <div className="mt-8 px-3 border-t border-slate-200 dark:border-slate-800 pt-6">
-                  {isAuthenticated ? (
-                    <div className="space-y-2">
-                      <Link to="/profile" onClick={closeMobileMenu} className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors">Your Profile & Orders</Link>
-                      <button onClick={() => { handleLogout(); closeMobileMenu(); }} className="w-full text-left px-4 py-3 text-base font-medium text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-2">
-                        <LogOut size={18} />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => { closeMobileMenu(); onOpenAuthModal(); }} className="w-full px-4 py-3 text-base font-medium text-white bg-primary hover:bg-primary-dark rounded-xl transition-colors flex items-center justify-center gap-2">
-                      <User size={18} />
-                      <span>Sign In / Register</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </>
   );
 };

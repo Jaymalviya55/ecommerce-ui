@@ -15,12 +15,28 @@ const SupportDashboard = lazy(() => import('./pages/SupportDashboard').then(modu
 const SupportAnalytics = lazy(() => import('./pages/SupportAnalytics').then(module => ({ default: module.SupportAnalytics })))
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(module => ({ default: module.VerifyEmail })))
 const ResetPassword = lazy(() => import('./pages/ResetPassword').then(module => ({ default: module.ResetPassword })))
+import { PersonalInfo } from './components/profile/PersonalInfo'
+import { ManageAddresses } from './components/profile/ManageAddresses'
+import { MyOrders } from './components/profile/MyOrders'
+import { MyCoupons } from './components/profile/MyCoupons'
+import { MyReviews } from './components/profile/MyReviews'
+import { CustomerTickets } from './components/profile/CustomerTickets'
+import { DashboardAnalytics } from './components/admin/DashboardAnalytics'
+import { ProductManagement } from './components/admin/ProductManagement'
+import { OrderManagement } from './components/admin/OrderManagement'
+import { CouponManagement } from './components/admin/CouponManagement'
+import { UserTypeManagement } from './components/admin/usermanagement/UserTypeManagement'
+import { UserLevelManagement } from './components/admin/usermanagement/UserLevelManagement'
+import { UserRoleManagement } from './components/admin/usermanagement/UserRoleManagement'
+import { UserLevelToRoleManagement } from './components/admin/usermanagement/UserLevelToRoleManagement'
+import { UserRoleToFeatureManagement } from './components/admin/usermanagement/UserRoleToFeatureManagement'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AdminRoute } from './components/AdminRoute'
 import { FulfillmentRoute } from './components/FulfillmentRoute'
 import { CartSidebar } from './components/CartSidebar'
 import { AuthModal } from './components/AuthModal'
 import { Navbar } from './components/layout/Navbar'
+import { Sidebar } from './components/layout/Sidebar'
 import { Footer } from './components/layout/Footer'
 import { useCartStore } from './store/useCartStore'
 import { useAuthStore } from './store/useAuthStore'
@@ -37,6 +53,7 @@ function App() {
   const { logout } = useAuthStore()
   useThemeStore() // init theme store for persistence
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
@@ -76,9 +93,10 @@ function App() {
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 selection:bg-primary selection:text-white transition-colors duration-300">
       <ToastProvider />
       <CartSidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
-      <Navbar onOpenAuthModal={() => setIsAuthModalOpen(true)} />
+      <Navbar onOpenAuthModal={() => setIsAuthModalOpen(true)} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       
       <main className="flex-1 pt-32 pb-12 px-4 w-full max-w-[1750px] mx-auto">
         <AnimatePresence mode="wait">
@@ -104,7 +122,15 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 
                 <Route element={<ProtectedRoute onShowLogin={() => setIsAuthModalOpen(true)} />}>
-                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile" element={<Profile />}>
+                    <Route index element={<PersonalInfo />} />
+                    <Route path="account" element={<PersonalInfo />} />
+                    <Route path="addresses" element={<ManageAddresses />} />
+                    <Route path="orders" element={<MyOrders />} />
+                    <Route path="coupons" element={<MyCoupons />} />
+                    <Route path="reviews" element={<MyReviews />} />
+                    <Route path="support" element={<CustomerTickets />} />
+                  </Route>
                   <Route path="/checkout" element={<Checkout />} />
                 </Route>
 
@@ -114,7 +140,18 @@ function App() {
                 </Route>
 
                 <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin" element={<AdminDashboard />}>
+                    <Route index element={<DashboardAnalytics />} />
+                    <Route path="overview" element={<DashboardAnalytics />} />
+                    <Route path="products" element={<ProductManagement />} />
+                    <Route path="orders" element={<OrderManagement />} />
+                    <Route path="coupons" element={<CouponManagement />} />
+                    <Route path="user-management/user-type" element={<UserTypeManagement />} />
+                    <Route path="user-management/user-level" element={<UserLevelManagement />} />
+                    <Route path="user-management/user-role" element={<UserRoleManagement />} />
+                    <Route path="user-management/level-to-role" element={<UserLevelToRoleManagement />} />
+                    <Route path="user-management/role-to-feature" element={<UserRoleToFeatureManagement />} />
+                  </Route>
                 </Route>
                 
                 <Route element={<FulfillmentRoute />}>
