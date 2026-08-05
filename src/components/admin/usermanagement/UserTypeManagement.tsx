@@ -72,7 +72,7 @@ export const UserTypeManagement = ({ onBack }: { onBack?: () => void }) => {
           className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
         >
           <Plus size={18} />
-          <span>+ Add</span>
+          <span>Add</span>
         </button>
       </div>
 

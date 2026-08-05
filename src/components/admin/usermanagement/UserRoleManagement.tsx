@@ -64,6 +64,27 @@ export const UserRoleManagement = ({ onBack }: { onBack?: () => void }) => {
     }
   };
 
+  const handleToggleStatus = async (id: number) => {
+    try {
+      await axiosClient.patch(`/UserRole/${id}/status`);
+      toast.success('Status updated successfully');
+      fetchData();
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to remove this User Role?')) return;
+    try {
+      await axiosClient.delete(`/UserRole/${id}`);
+      toast.success('User Role removed successfully');
+      fetchData();
+    } catch {
+      toast.error('Failed to remove User Role');
+    }
+  };
+
   const filtered = roles.filter(r => 
     r.name.toLowerCase().includes(search.toLowerCase()) || 
     r.userLevelName.toLowerCase().includes(search.toLowerCase())
@@ -88,7 +109,7 @@ export const UserRoleManagement = ({ onBack }: { onBack?: () => void }) => {
           className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
         >
           <Plus size={18} />
-          <span>+ Add</span>
+          <span>Add</span>
         </button>
       </div>
 
@@ -116,6 +137,7 @@ export const UserRoleManagement = ({ onBack }: { onBack?: () => void }) => {
                 <th className="p-3.5 font-bold">Role Name</th>
                 <th className="p-3.5 font-bold">Sequence</th>
                 <th className="p-3.5 font-bold">Status</th>
+                <th className="p-3.5 font-bold text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -129,6 +151,20 @@ export const UserRoleManagement = ({ onBack }: { onBack?: () => void }) => {
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${r.isActive ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
                       {r.isActive ? 'Active' : 'Inactive'}
                     </span>
+                  </td>
+                  <td className="p-3.5 text-center flex justify-center space-x-2">
+                    <button
+                      onClick={() => handleToggleStatus(r.userRoleId)}
+                      className="inline-flex items-center space-x-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors"
+                    >
+                      <span>Change Status</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(r.userRoleId)}
+                      className="inline-flex items-center space-x-1 text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors"
+                    >
+                      <span>Remove</span>
+                    </button>
                   </td>
                 </tr>
               ))}
