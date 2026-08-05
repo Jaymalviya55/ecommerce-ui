@@ -174,11 +174,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   checkout: async (email: string, address: string) => {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/orders/checkout`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ sessionId: get().sessionId, email, address }),
       });
       if (!response.ok) {
