@@ -92,13 +92,13 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-indigo-400"></div>
             
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-8">
+            <div className="p-6 sm:p-8">
+              <div className="flex justify-between items-start mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1 sm:mb-2">
                     {view === 'login' ? 'Welcome Back' : view === 'register' ? 'Create Account' : 'Reset Password'}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium leading-relaxed">
                     {view === 'login' ? 'Enter your details to access your account.' : view === 'register' ? 'Join us for a premium shopping experience.' : 'Enter your email to receive a reset link.'}
                   </p>
                 </div>
@@ -111,7 +111,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <AnimatePresence mode="wait">
                   {error && (
                     <motion.div 
@@ -189,7 +189,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     <input
                       type="email"
                       required
-                      className="block w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      className="block w-full pl-11 pr-4 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -208,7 +208,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         type={showPassword ? "text" : "password"}
                         required
                         minLength={8}
-                        className="block w-full pl-11 pr-12 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        className="block w-full pl-11 pr-12 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -239,7 +239,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center items-center space-x-2 py-4 px-4 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-primary disabled:opacity-50 mt-4 group"
+                  className="w-full flex justify-center items-center space-x-2 py-3 sm:py-4 px-4 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-primary disabled:opacity-50 mt-4 group"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -275,7 +275,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 )}
               </form>
 
-              <div className="mt-8 text-center text-sm font-medium">
+              <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm font-medium">
                 <span className="text-slate-600 dark:text-slate-500">
                   {view === 'login' ? "Don't have an account? " : view === 'register' ? "Already have an account? " : "Remember your password? "}
                 </span>
