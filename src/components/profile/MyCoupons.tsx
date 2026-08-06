@@ -9,6 +9,7 @@ interface Coupon {
   isActive: boolean;
   expirationDate: string;
   minimumSpend: number;
+  isUsed: boolean;
 }
 
 export const MyCoupons = () => {
@@ -20,7 +21,11 @@ export const MyCoupons = () => {
     const fetchActiveCoupons = async () => {
       try {
         const response = await axiosClient.get('/coupons/active');
-        setCoupons(response.data);
+        // Sort so active coupons are first, used/inactive ones are last
+        const sorted = (response.data as Coupon[]).sort((a, b) => 
+          (a.isUsed === b.isUsed) ? 0 : a.isUsed ? 1 : -1
+        );
+        setCoupons(sorted);
       } catch (err: any) {
         setError(err.response?.data || err.message);
       } finally {
@@ -36,7 +41,7 @@ export const MyCoupons = () => {
       <div className="p-6 border-b border-slate-200 dark:border-slate-700/50">
         <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <Ticket size={24} className="text-primary" />
-          Available Coupons
+          My Coupons
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Use these codes during checkout to get exclusive discounts!</p>
       </div>
@@ -59,7 +64,11 @@ export const MyCoupons = () => {
             {coupons.map((coupon) => (
               <div 
                 key={coupon.id} 
-                className="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg transition-transform hover:-translate-y-1"
+                className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-transform hover:-translate-y-1 ${
+                  coupon.isUsed 
+                    ? 'bg-slate-400 dark:bg-slate-700 opacity-70 grayscale' 
+                    : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                }`}
               >
                 {/* Decorative circles */}
                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -69,10 +78,17 @@ export const MyCoupons = () => {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h4 className="text-3xl font-black drop-shadow-sm">{coupon.discountPercentage}% OFF</h4>
-                      <p className="text-white/80 text-sm font-medium mt-1">Special Discount</p>
+                      <p className="text-white/80 text-sm font-medium mt-1">
+                        {coupon.isUsed ? 'Already Used' : 'Special Discount'}
+                      </p>
                     </div>
-                    <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/30">
-                      <code className="font-mono text-lg font-bold tracking-wider">{coupon.code}</code>
+                    <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/30 flex flex-col items-center">
+                      <code className={`font-mono text-lg font-bold tracking-wider ${coupon.isUsed ? 'line-through opacity-70' : ''}`}>
+                        {coupon.code}
+                      </code>
+                      {coupon.isUsed && (
+                        <span className="text-[10px] font-bold uppercase tracking-widest mt-1 text-white/90">Used</span>
+                      )}
                     </div>
                   </div>
                   

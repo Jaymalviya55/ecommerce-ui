@@ -4,7 +4,8 @@ import { useCartStore } from '../store/useCartStore';
 import { useProfileStore, type Address } from '../store/useProfileStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { motion } from 'framer-motion';
-import { CreditCard, MapPin, Mail, CheckCircle, ArrowLeft, ShieldCheck, ShoppingBag, Home, Briefcase } from 'lucide-react';
+import { CreditCard, MapPin, Mail, CheckCircle, ArrowLeft, ShieldCheck, ShoppingBag, Home, Briefcase, Tag } from 'lucide-react';
+import axiosClient from '../api/axiosClient';
 
 export const Checkout = () => {
   const { cart, checkout } = useCartStore();
@@ -18,10 +19,24 @@ export const Checkout = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [showManualAddress, setShowManualAddress] = useState(false);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
 
   useEffect(() => {
     fetchAddresses();
   }, [fetchAddresses]);
+
+  useEffect(() => {
+    if (cart?.appliedCouponCode) {
+      axiosClient.get('/coupons/active')
+        .then(res => {
+          const coupon = res.data.find((c: any) => c.code === cart.appliedCouponCode);
+          if (coupon && !coupon.isUsed) {
+            setDiscountPercent(coupon.discountPercentage);
+          }
+        })
+        .catch(err => console.error("Failed to load coupon details", err));
+    }
+  }, [cart?.appliedCouponCode]);
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddressId && !showManualAddress) {
@@ -51,7 +66,9 @@ export const Checkout = () => {
     }
   }, []);
 
-  const total = cart?.items?.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0) || 0;
+  const subtotal = cart?.items?.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0) || 0;
+  const discountAmount = subtotal * (discountPercent / 100);
+  const total = subtotal - discountAmount;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,8 +315,19 @@ export const Checkout = () => {
             <div className="space-y-4 border-t border-slate-200 dark:border-slate-700/50 pt-6">
               <div className="flex items-center justify-between text-sm">
                 <dt className="text-slate-500 dark:text-slate-400">Subtotal</dt>
-                <dd className="font-medium text-slate-900 dark:text-white">₹{total.toFixed(2)}</dd>
+                <dd className="font-medium text-slate-900 dark:text-white">₹{subtotal.toFixed(2)}</dd>
               </div>
+              
+              {cart?.appliedCouponCode && (
+                <div className="flex items-center justify-between text-sm">
+                  <dt className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                    <Tag size={16} />
+                    Coupon ({cart.appliedCouponCode})
+                  </dt>
+                  <dd className="font-medium text-emerald-600 dark:text-emerald-400">- ₹{discountAmount.toFixed(2)}</dd>
+                </div>
+              )}
+              
               <div className="flex items-center justify-between text-sm">
                 <dt className="text-slate-500 dark:text-slate-400">Shipping</dt>
                 <dd className="font-medium text-emerald-600 dark:text-emerald-400">Free</dd>
