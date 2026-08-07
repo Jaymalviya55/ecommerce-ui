@@ -64,13 +64,13 @@ export const HeroCarousel = () => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="relative w-full mx-auto mb-12 rounded-3xl overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] group">
+    <div className="relative w-full mx-auto mb-16 rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] group">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {BANNERS.map((banner) => (
             <Link 
               to={banner.link}
-              className="flex-[0_0_100%] min-w-0 relative h-[220px] sm:h-[350px] md:h-[450px] block cursor-pointer" 
+              className="flex-[0_0_100%] min-w-0 relative h-[50vh] sm:h-[60vh] md:h-[75vh] 2xl:h-[800px] block cursor-pointer" 
               key={banner.id}
             >
               {/* Background Image */}

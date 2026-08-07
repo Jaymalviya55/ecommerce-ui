@@ -189,10 +189,10 @@ export const CartSidebar = () => {
                       navigate('/checkout');
                     }}
                     disabled={!cart?.items || cart.items.length === 0}
-                    className="w-full flex justify-center items-center space-x-2 px-6 py-4 rounded-xl font-bold text-white bg-primary hover:bg-primary-dark transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 hover:shadow-primary/40 group"
+                    className="w-full flex justify-center items-center space-x-2 px-6 py-4 rounded-xl font-black text-white bg-gradient-to-r from-primary via-indigo-500 to-purple-500 hover:from-primary-dark hover:to-purple-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group"
                   >
-                    <span>Secure Checkout</span>
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    <span className="text-lg tracking-wide">Secure Checkout</span>
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                   
                   <div className="mt-6 flex justify-center text-sm text-center">
