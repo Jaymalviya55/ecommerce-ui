@@ -88,8 +88,8 @@ export const Navbar = ({ onOpenAuthModal, onToggleSidebar }: NavbarProps) => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl saturate-150 border-b border-slate-200/50 dark:border-slate-700/30 shadow-sm transition-all duration-300">
-        
+      <div className="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6 pt-4 pointer-events-none transition-all duration-300">
+        <header className="pointer-events-auto max-w-7xl mx-auto w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl saturate-150 border border-slate-200/50 dark:border-slate-700/50 shadow-2xl shadow-slate-900/5 dark:shadow-black/20 rounded-2xl transition-all duration-300">
         {/* Top Row: Hamburger Menu Button, Logo, Search, Actions */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           
@@ -169,13 +169,11 @@ export const Navbar = ({ onOpenAuthModal, onToggleSidebar }: NavbarProps) => {
           </div>
         </div>
 
-        {/* Search Bar (Mobile sub-header) */}
-        {!isWarehouseOnly && (
-          <div className="sm:hidden px-4 pb-3 pt-1 border-t border-slate-200/50 dark:border-slate-800">
+          <div className="sm:hidden px-4 pb-3 pt-1 border-t border-slate-200/50 dark:border-slate-700/50">
             <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
           </div>
-        )}
-      </header>
+        </header>
+      </div>
     </>
   );
 };

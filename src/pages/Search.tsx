@@ -64,38 +64,37 @@ export const Search = () => {
                         <motion.div 
                             variants={item}
                             key={product.id} 
-                            className="group bg-white/80 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-3xl overflow-hidden hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1"
+                            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-900/10 dark:hover:shadow-black/50 hover:-translate-y-2"
                         >
-                            <Link to={`/product/${product.id}`} className="block h-56 bg-slate-50 dark:bg-slate-700/30 relative overflow-hidden flex items-center justify-center">
-                                <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" width={400} height={400} />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-                            </Link>
+                            <div className="relative h-72 bg-slate-50 dark:bg-slate-800/50 overflow-hidden flex items-center justify-center">
+                                <img src={product.imageUrl || getProductImage(product.name)} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" width={400} height={400} />
+                                
+                                {/* Hover Overlay */}
+                                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex flex-col justify-end p-4">
+                                   <button 
+                                        onClick={() => addToCart(product.id, 1)}
+                                        className="w-full translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center justify-center space-x-2 bg-white text-slate-900 hover:bg-primary hover:text-white px-4 py-3 rounded-xl font-bold transition-all duration-300 shadow-xl"
+                                    >
+                                        <ShoppingCart size={18} />
+                                        <span>Quick Add</span>
+                                    </button>
+                                </div>
+                            </div>
                             
-                            <div className="p-6">
-                                <div className="flex justify-between items-start mb-4">
+                            <Link to={`/product/${product.id}`} className="block p-6 bg-white dark:bg-slate-900 relative z-20">
+                                <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="text-xs font-bold tracking-wider text-primary uppercase mb-1">
+                                        <div className="text-[10px] font-black tracking-widest text-primary uppercase mb-1">
                                             {product.category?.name || 'Uncategorized'}
                                         </div>
-                                        <Link to={`/product/${product.id}`}>
-                                            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
-                                        </Link>
+                                        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 line-clamp-1">{product.name}</h3>
                                     </div>
-                                    <span className="text-lg font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700/50 px-3 py-1 rounded-xl">
+                                    <span className="text-lg font-black text-slate-900 dark:text-white">
                                         ₹{product.price}
                                     </span>
                                 </div>
-                                
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2 h-10">{product.description}</p>
-                                
-                                <button 
-                                    onClick={() => addToCart(product.id, 1)}
-                                    className="w-full flex items-center justify-center space-x-2 bg-slate-100 dark:bg-slate-700/50 hover:bg-primary text-slate-900 hover:text-white dark:text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 group/btn"
-                                >
-                                    <ShoppingCart size={18} className="group-hover/btn:-translate-x-1 transition-transform" />
-                                    <span>Add to Cart</span>
-                                </button>
-                            </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mt-2">{product.description}</p>
+                            </Link>
                         </motion.div>
                     ))}
                 </motion.div>

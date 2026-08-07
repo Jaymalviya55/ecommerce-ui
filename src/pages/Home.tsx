@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useProductStore } from '../store/useProductStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { CategoryStack } from '../components/CategoryStack';
+import { BentoGrid } from '../components/home/BentoGrid';
 import { Navigate } from 'react-router-dom';
 
 import { HeroCarousel } from '../components/home/HeroCarousel';
@@ -60,15 +60,7 @@ export const Home = () => {
                 <p className="text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">Explore our premium collections through interactive stacks.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 lg:gap-x-24 xl:gap-x-32 gap-y-32 justify-items-center">
-                {Array.from(categoriesMap.entries()).map(([categoryName, catProducts]) => (
-                    <CategoryStack 
-                        key={categoryName} 
-                        categoryName={categoryName} 
-                        products={catProducts} 
-                    />
-                ))}
-            </div>
+            <BentoGrid categoriesMap={categoriesMap} />
             
             {products.length === 0 && (
                 <div className="text-center bg-white/80 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-3xl py-16 mt-8 shadow-sm dark:shadow-none">

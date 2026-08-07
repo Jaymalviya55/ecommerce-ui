@@ -94,7 +94,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const userReview = reviews.find(r => r.userId === userId);
 
   return (
-    <div className="mt-8 sm:mt-10 bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-xl dark:shadow-2xl mb-8 sm:mb-10">
+    <div className="mt-8 mb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-slate-200 dark:border-slate-700/50">
         <div className="w-full">
           <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
