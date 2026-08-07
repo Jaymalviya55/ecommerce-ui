@@ -50,14 +50,18 @@ export const SupportAnalytics = () => {
   }
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-900/50 min-h-screen overflow-y-auto w-full">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="flex-1 p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 min-h-screen overflow-y-auto w-full relative">
+      {/* Soft Glow Background Effects */}
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[40rem] h-[40rem] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[40rem] h-[40rem] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <TrendingUp className="text-indigo-500" size={32} />
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+              <TrendingUp className="text-indigo-500" size={36} />
               Support Analytics
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2">
@@ -102,8 +106,8 @@ export const SupportAnalytics = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Ticket Volume Trend */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h3 className="font-semibold mb-6 text-slate-800 dark:text-slate-200">Ticket Volume (Last 7 Days)</h3>
+          <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10">
+            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-slate-100">Ticket Volume (Last 7 Days)</h3>
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.ticketsByDay}>
@@ -121,8 +125,8 @@ export const SupportAnalytics = () => {
           </div>
 
           {/* Tickets by Status */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h3 className="font-semibold mb-6 text-slate-800 dark:text-slate-200">Tickets by Status</h3>
+          <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10">
+            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-slate-100">Tickets by Status</h3>
             <div className="h-72 w-full flex items-center justify-center relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -155,9 +159,9 @@ export const SupportAnalytics = () => {
         </div>
 
         {/* Agent Performance Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-            <h3 className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+        <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-700/50">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               <Users size={20} className="text-indigo-500" />
               Agent Performance (Leaderboard)
             </h3>
@@ -227,9 +231,9 @@ export const SupportAnalytics = () => {
 
 function KpiCard({ title, value, icon, trend, trendPositive }: any) {
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+    <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 hover:-translate-y-1 hover:shadow-indigo-500/15 transition-all duration-300">
       <div className="flex justify-between items-start mb-4">
-        <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center border border-slate-100 dark:border-slate-700/50">
+        <div className="w-14 h-14 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-center border border-white/40 dark:border-slate-700/50 shadow-sm">
           {icon}
         </div>
         <span className={`text-xs font-semibold px-2 py-1 rounded-md ${trendPositive ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400' : 'text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400'}`}>

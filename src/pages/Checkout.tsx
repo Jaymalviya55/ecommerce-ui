@@ -20,6 +20,7 @@ export const Checkout = () => {
   const [error, setError] = useState('');
   const [showManualAddress, setShowManualAddress] = useState(false);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   useEffect(() => {
     fetchAddresses();
@@ -154,80 +155,104 @@ export const Checkout = () => {
       transition={{ duration: 0.4 }}
       className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
     >
+      <div className="mb-10 text-center lg:text-left">
+        <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight flex items-center justify-center lg:justify-start space-x-3">
+          <ShieldCheck size={40} className="text-primary" />
+          <span>Secure Checkout</span>
+        </h1>
+      </div>
+
       <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 xl:gap-x-16">
         
-        {/* Left Side - Form */}
+        {/* Left Side - Accordion Steps */}
         <div className="lg:col-span-7">
-          <div className="mb-8">
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center space-x-3">
-              <ShieldCheck size={36} className="text-primary" />
-              <span>Secure Checkout</span>
-            </h1>
-            <p className="mt-2 text-slate-500 dark:text-slate-400 text-lg">Enter your details to complete your premium order.</p>
-          </div>
-
-          <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 shadow-xl dark:shadow-2xl rounded-3xl p-6 sm:p-8">
+          <div className="space-y-6">
             {error && (
-              <div className="mb-8 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-4 rounded-xl flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <CheckCircle className="h-5 w-5 text-rose-500 dark:text-rose-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{error}</p>
-                </div>
+              <div className="mb-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-4 rounded-xl flex items-start space-x-3">
+                <CheckCircle className="h-5 w-5 text-rose-500 dark:text-rose-400 shrink-0" />
+                <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-700/50 pb-4">Contact Information</h3>
-                
-                <div className="space-y-5">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail size={18} className="text-slate-400 dark:text-slate-500" />
-                      </div>
-                      <input
-                        type="email"
-                        id="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="you@example.com"
-                      />
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Step 1: Contact */}
+              <div className={`bg-white dark:bg-slate-800/80 border ${currentStep === 1 ? 'border-primary shadow-xl shadow-primary/10' : 'border-slate-200 dark:border-slate-700/50'} rounded-3xl overflow-hidden transition-all duration-300`}>
+                <div 
+                  className="px-6 py-5 flex items-center justify-between cursor-pointer"
+                  onClick={() => setCurrentStep(1)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${currentStep === 1 ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>1</div>
+                    <h3 className={`text-xl font-bold ${currentStep === 1 ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>Contact Information</h3>
                   </div>
+                  {currentStep > 1 && email && <span className="text-sm font-medium text-primary">Edit</span>}
                 </div>
+                
+                {currentStep === 1 && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="px-6 pb-6 pt-2">
+                    <div className="space-y-4">
+                      <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <Mail size={18} className="text-slate-400" />
+                        </div>
+                        <input
+                          type="email"
+                          id="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                          placeholder="you@example.com"
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => { if(email) setCurrentStep(2) }}
+                        disabled={!email}
+                        className="w-full mt-4 py-4 rounded-xl font-bold text-white bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary-dark transition-colors disabled:opacity-50"
+                      >
+                        Continue to Shipping
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-700/50 pb-4">Shipping Details</h3>
-                
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Delivery Address</label>
-                    
+              {/* Step 2: Shipping */}
+              <div className={`bg-white dark:bg-slate-800/80 border ${currentStep === 2 ? 'border-primary shadow-xl shadow-primary/10' : 'border-slate-200 dark:border-slate-700/50'} rounded-3xl overflow-hidden transition-all duration-300`}>
+                <div 
+                  className={`px-6 py-5 flex items-center justify-between ${currentStep > 2 || (currentStep === 1 && email) ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                  onClick={() => { if (currentStep > 2 || (currentStep === 1 && email)) setCurrentStep(2) }}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${currentStep === 2 ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>2</div>
+                    <h3 className={`text-xl font-bold ${currentStep === 2 ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>Shipping Details</h3>
+                  </div>
+                  {currentStep > 2 && selectedAddressId && <span className="text-sm font-medium text-primary">Edit</span>}
+                </div>
+
+                {currentStep === 2 && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="px-6 pb-6 pt-2">
                     {addresses.length > 0 && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         {addresses.map(addr => (
                           <div 
                             key={addr.id}
                             onClick={() => handleSelectAddress(addr)}
-                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id && !showManualAddress ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'}`}
+                            className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id && !showManualAddress ? 'border-primary bg-primary/5 shadow-md' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
                           >
                             <div className="flex items-center gap-2 mb-2">
-                              {addr.addressType === 'Home' ? <Home size={14} className="text-slate-500" /> : <Briefcase size={14} className="text-slate-500" />}
-                              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{addr.addressType}</span>
-                              {addr.isDefault && <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded">DEFAULT</span>}
+                              {addr.addressType === 'Home' ? <Home size={16} className="text-primary" /> : <Briefcase size={16} className="text-primary" />}
+                              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">{addr.addressType}</span>
+                              {addr.isDefault && <span className="ml-auto text-[10px] font-black text-white bg-primary px-2 py-0.5 rounded-full">DEFAULT</span>}
                             </div>
-                            <p className="font-semibold text-slate-900 dark:text-white text-sm mb-1">{addr.fullName}</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                            <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">{addr.fullName}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
                               {addr.streetAddress}, {addr.locality}, {addr.city}
                             </p>
-                            <p className="text-xs text-slate-500 mt-2 font-medium">Ph: {addr.phoneNumber}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Ph: {addr.phoneNumber}</p>
                           </div>
                         ))}
                       </div>
@@ -241,16 +266,16 @@ export const Checkout = () => {
                           setSelectedAddressId(null);
                           setAddress('');
                         }}
-                        className={`text-sm font-medium mb-4 flex items-center transition-colors ${showManualAddress ? 'text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                        className={`text-sm font-bold mb-4 flex items-center transition-colors ${showManualAddress ? 'text-primary' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
                       >
-                        <MapPin size={16} className="mr-1" /> Type a different address manually
+                        <MapPin size={16} className="mr-1" /> Use a different address
                       </button>
                     )}
 
                     {showManualAddress && (
-                      <div className="relative animate-fadeIn">
+                      <div className="relative mb-6">
                         <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
-                          <MapPin size={18} className="text-slate-400 dark:text-slate-500" />
+                          <MapPin size={18} className="text-slate-400" />
                         </div>
                         <textarea
                           id="address"
@@ -258,31 +283,73 @@ export const Checkout = () => {
                           rows={4}
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
-                          className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                          placeholder="123 Luxury Ave, Apt 4B, Metropolis"
+                          className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                          placeholder="Full detailed address..."
                         />
                       </div>
                     )}
-                  </div>
-                </div>
+
+                    <button 
+                      type="button" 
+                      onClick={() => { if(address) setCurrentStep(3) }}
+                      disabled={!address}
+                      className="w-full py-4 rounded-xl font-bold text-white bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary-dark transition-colors disabled:opacity-50"
+                    >
+                      Continue to Payment
+                    </button>
+                  </motion.div>
+                )}
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700/50 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center">
-                <button
-                  type="button"
-                  onClick={() => navigate(-1)}
-                  className="mt-4 sm:mt-0 py-3 px-6 rounded-xl font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
+              {/* Step 3: Payment */}
+              <div className={`bg-white dark:bg-slate-800/80 border ${currentStep === 3 ? 'border-primary shadow-xl shadow-primary/10' : 'border-slate-200 dark:border-slate-700/50'} rounded-3xl overflow-hidden transition-all duration-300`}>
+                <div 
+                  className={`px-6 py-5 flex items-center justify-between ${currentStep === 3 ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                  onClick={() => { if (address && email) setCurrentStep(3) }}
                 >
-                  Return to Cart
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || total === 0}
-                  className="flex items-center justify-center space-x-2 py-4 px-8 rounded-xl font-bold text-white bg-primary hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 disabled:opacity-50 group"
-                >
-                  <CreditCard size={20} className="group-hover:scale-110 transition-transform" />
-                  <span>{isSubmitting ? 'Processing...' : 'Pay Securely'}</span>
-                </button>
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${currentStep === 3 ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>3</div>
+                    <h3 className={`text-xl font-bold ${currentStep === 3 ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>Payment</h3>
+                  </div>
+                </div>
+                
+                {currentStep === 3 && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="px-6 pb-6 pt-2">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 mb-6 flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl shadow-sm flex items-center justify-center shrink-0">
+                        <CreditCard size={24} className="text-slate-700 dark:text-slate-300" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">Razorpay Secure Checkout</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Pay via UPI, Cards, NetBanking, or Wallets.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="w-full sm:w-1/3 py-4 rounded-xl font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || total === 0}
+                        className="w-full sm:w-2/3 flex items-center justify-center space-x-2 py-4 rounded-xl font-black text-white bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:opacity-50"
+                      >
+                        {isSubmitting ? (
+                          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <>
+                            <ShieldCheck size={20} />
+                            <span>Pay ₹{total.toFixed(2)}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </form>
           </div>

@@ -51,7 +51,12 @@ export const DashboardAnalytics = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl -m-6">
+    <div className="space-y-6 animate-in fade-in duration-500 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-6 sm:p-10 rounded-[2.5rem] -mx-4 sm:-mx-8 relative overflow-hidden">
+      {/* Soft Glow Background Effects */}
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[40rem] h-[40rem] bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[40rem] h-[40rem] bg-indigo-500/5 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div className="relative z-10 space-y-6">
       {/* Header & Date Filter */}
       <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
         <div className="flex gap-4">
@@ -83,6 +88,7 @@ export const DashboardAnalytics = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <RecentTransactionsTable data={data.recentOrders} />
         <InventoryAlertsList data={data.lowStockProducts} />
+      </div>
       </div>
     </div>
   );

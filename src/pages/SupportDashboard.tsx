@@ -231,20 +231,25 @@ export const SupportDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-          <MessagesSquare size={24} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Support Desk</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and resolve customer inquiries</p>
-        </div>
-      </div>
+    <div className="flex-1 p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 min-h-screen overflow-y-auto w-full relative">
+      {/* Soft Glow Background Effects */}
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[40rem] h-[40rem] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[40rem] h-[40rem] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden flex h-[600px]">
-        {/* Ticket List (Left Pane) */}
-        <div className="w-1/3 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50/50 dark:bg-slate-900/50">
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+            <MessagesSquare size={24} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Support Desk</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and resolve customer inquiries</p>
+          </div>
+        </div>
+
+        <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden flex h-[600px]">
+          {/* Ticket List (Left Pane) */}
+          <div className="w-1/3 border-r border-white/40 dark:border-slate-700/50 flex flex-col bg-slate-50/30 dark:bg-slate-900/40">
           <div className="p-4 border-b border-slate-200 dark:border-slate-800">
             <select 
               value={filter} 
@@ -427,6 +432,7 @@ export const SupportDashboard = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };

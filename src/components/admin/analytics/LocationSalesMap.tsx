@@ -9,7 +9,7 @@ interface LocationSalesMapProps {
 
 export const LocationSalesMap = ({ data }: LocationSalesMapProps) => {
   return (
-    <div className="xl:col-span-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] flex flex-col">
+    <div className="xl:col-span-1 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 flex flex-col">
       <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-4">Sales By Location</h3>
       
       {/* Interactive World Map */}

@@ -17,9 +17,9 @@ const getStatusColor = (status: string) => {
 
 export const RecentTransactionsTable = ({ data }: RecentTransactionsTableProps) => {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] overflow-hidden flex flex-col">
+    <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden">
       <div className="flex justify-between items-center mb-6">
-         <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Recent Transactions</h3>
+        <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Recent Transactions</h3>
          <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"><MoreHorizontal size={18}/></button>
       </div>
       <div className="overflow-x-auto flex-1">
