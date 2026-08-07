@@ -79,16 +79,25 @@ export const FulfillmentDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-          <Package size={24} />
+    <div className="flex-1 p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 min-h-screen overflow-y-auto w-full relative">
+      {/* Soft Glow Background Effects */}
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[40rem] h-[40rem] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[40rem] h-[40rem] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <Package size={24} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Fulfillment Station</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-1">Manage packing and shipping operations</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Fulfillment Station</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage packing and shipping operations</p>
-        </div>
-      </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
@@ -107,8 +116,8 @@ export const FulfillmentDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {orders.map(order => (
-            <div key={order.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/50 overflow-hidden flex flex-col">
-              <div className="p-5 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/20 flex justify-between items-start">
+            <div key={order.id} className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300">
+              <div className="p-5 border-b border-white/40 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-900/40 flex justify-between items-start">
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-white">Order #{order.id}</h3>
                   <p className="text-xs text-slate-500 mt-1">{new Date(order.orderDate).toLocaleString()}</p>
@@ -166,6 +175,7 @@ export const FulfillmentDashboard = () => {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 };

@@ -20,8 +20,13 @@ export const AdminDashboard = () => {
     }`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="sm:flex sm:items-center sm:justify-between mb-8">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 relative overflow-x-hidden">
+      {/* Soft Glow Background Effects */}
+      <div className="absolute top-0 left-1/4 -mt-32 w-[40rem] h-[40rem] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-0 -mr-32 w-[40rem] h-[40rem] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold leading-tight text-slate-900 dark:text-slate-100">Admin Dashboard</h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Manage store operations, orders, and centralized user permissions.</p>
@@ -80,6 +85,7 @@ export const AdminDashboard = () => {
       <div>
         <Outlet />
       </div>
+    </div>
     </div>
   );
 };

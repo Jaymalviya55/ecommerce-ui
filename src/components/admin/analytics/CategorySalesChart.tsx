@@ -9,7 +9,7 @@ const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
 
 export const CategorySalesChart = ({ data }: CategorySalesChartProps) => {
   return (
-    <div className="xl:col-span-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] flex flex-col">
+    <div className="xl:col-span-1 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 flex flex-col">
       <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">Total Sales (Categories)</h3>
       <div className="flex-1 min-h-[160px] relative">
           {data.length > 0 ? (

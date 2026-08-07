@@ -7,7 +7,7 @@ interface TopProductsTableProps {
 
 export const TopProductsTable = ({ data }: TopProductsTableProps) => {
   return (
-    <div className="xl:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] overflow-hidden flex flex-col">
+    <div className="xl:col-span-2 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl dark:shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Top Selling Products</h3>
         <div className="flex gap-2">
